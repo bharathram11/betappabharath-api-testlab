@@ -1,0 +1,5 @@
+import { hasValidBearerToken, unauthorizedResponse } from "../_auth";
+import { createOrder, orders, products } from "../_store";
+const customerId = "cus_1001";
+export async function GET(request: Request) { if (!await hasValidBearerToken(request)) return unauthorizedResponse(); return Response.json({ data: orders.filter((order) => order.customerId === customerId) }); }
+export async function POST(request: Request) { if (!await hasValidBearerToken(request)) return unauthorizedResponse(); try { const body = await request.json(); const productId = Number(body.productId); const quantity = Number(body.quantity); if (!products.some((product) => product.id === productId) || !Number.isInteger(quantity) || quantity < 1) return Response.json({ error: "Validation failed", message: "productId must exist and quantity must be a positive integer" }, { status: 400 }); return Response.json(createOrder(customerId, [{ productId, quantity }]), { status: 201 }); } catch { return Response.json({ error: "Invalid JSON" }, { status: 400 }); } }

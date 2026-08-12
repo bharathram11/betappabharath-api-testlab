@@ -1,0 +1,2 @@
+import { products } from "../_store";
+export async function GET(request: Request) { const url = new URL(request.url); const category = url.searchParams.get("category")?.toLowerCase(); const search = url.searchParams.get("search")?.toLowerCase(); const data = products.filter((product) => (!category || product.category === category) && (!search || product.name.toLowerCase().includes(search))); return Response.json({ page: 1, per_page: 10, total: data.length, data }, { headers: { "Cache-Control": "no-store" } }); }

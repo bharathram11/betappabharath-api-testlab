@@ -1,0 +1,96 @@
+{
+  "info": {
+    "name": "BetappaBharath Banking API TestLab",
+    "description": "A ready-to-run banking API practice collection. Start the TestLab server, run Create access token, then try customer, account, transaction and transfer requests in any order.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "accessToken", "value": "", "type": "string" },
+    { "key": "customerId", "value": "CUST-1001", "type": "string" },
+    { "key": "primaryAccountId", "value": "ACC-5001", "type": "string" },
+    { "key": "secondaryAccountId", "value": "ACC-5002", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "01 - Authentication",
+      "item": [
+        {
+          "name": "Create access token",
+          "auth": { "type": "noauth" },
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 201', () => pm.response.to.have.status(201));", "const json = pm.response.json();", "pm.collectionVariables.set('accessToken', json.access_token);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"bharath@example.test\",\n  \"password\": \"practice-password\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/v1/auth/token",
+            "description": "Creates a one-hour bearer token and saves it automatically as accessToken."
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Customers",
+      "item": [
+        {
+          "name": "List all customers",
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/customers", "description": "Returns all customers created during the current server session." }
+        },
+        {
+          "name": "Create customer",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 201', () => pm.response.to.have.status(201));", "const json = pm.response.json();", "pm.collectionVariables.set('customerId', json.data.id);"] } }],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Betappa\",\n  \"middleName\": \"\",\n  \"lastName\": \"Bharath\",\n  \"suffix\": \"\",\n  \"shortName\": \"\",\n  \"maidenName\": \"\",\n  \"dateOfBirth\": \"2000-07-17\",\n  \"isMinorCustomer\": false,\n  \"gender\": \"M\",\n  \"birthCountry\": \"IN\",\n  \"nationality\": \"IN\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/v1/customers",
+            "description": "Creates a customer and saves the returned ID as customerId."
+          }
+        },
+        { "name": "Get one customer", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/customers/{{customerId}}" } },
+        {
+          "name": "Replace customer details",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Betappa\",\n  \"middleName\": \"\",\n  \"lastName\": \"Bharath\",\n  \"suffix\": \"\",\n  \"shortName\": \"Bharath\",\n  \"maidenName\": \"\",\n  \"dateOfBirth\": \"2000-07-17\",\n  \"isMinorCustomer\": false,\n  \"gender\": \"M\",\n  \"birthCountry\": \"IN\",\n  \"nationality\": \"IN\"\n}", "options": { "raw": { "language": "json" } } },
+            "url": "{{baseUrl}}/api/v1/customers/{{customerId}}"
+          }
+        },
+        { "name": "Delete customer", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/customers/{{customerId}}", "description": "Returns 204 after every active account belonging to the customer has been deleted." } }
+      ]
+    },
+    {
+      "name": "03 - Accounts",
+      "item": [
+        {
+          "name": "Create primary account",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 201', () => pm.response.to.have.status(201));", "const json = pm.response.json();", "pm.collectionVariables.set('primaryAccountId', json.data.id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"accountType\": \"savings\",\n  \"nickname\": \"Salary Account\",\n  \"openingBalance\": 10000\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/customers/{{customerId}}/accounts" }
+        },
+        {
+          "name": "Create secondary account",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 201', () => pm.response.to.have.status(201));", "const json = pm.response.json();", "pm.collectionVariables.set('secondaryAccountId', json.data.id);"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"accountType\": \"savings\",\n  \"nickname\": \"Travel Fund\",\n  \"openingBalance\": 0\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/customers/{{customerId}}/accounts" }
+        },
+        { "name": "List customer accounts", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/customers/{{customerId}}/accounts" } },
+        { "name": "Get account details", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/accounts/{{primaryAccountId}}" } },
+        { "name": "Rename secondary account", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nickname\": \"Emergency Fund\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/accounts/{{secondaryAccountId}}" } },
+        { "name": "Delete secondary account", "request": { "method": "DELETE", "url": "{{baseUrl}}/api/v1/accounts/{{secondaryAccountId}}", "description": "Returns 204 only when the account balance is zero." } }
+      ]
+    },
+    {
+      "name": "04 - Transactions and transfers",
+      "item": [
+        { "name": "Deposit money", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"type\": \"credit\",\n  \"amount\": 2500,\n  \"reference\": \"Salary credit\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/accounts/{{primaryAccountId}}/transactions" } },
+        { "name": "Withdraw money", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"type\": \"debit\",\n  \"amount\": 1500,\n  \"reference\": \"Cash withdrawal\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/accounts/{{primaryAccountId}}/transactions" } },
+        { "name": "Transfer money", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"fromAccountId\": \"{{primaryAccountId}}\",\n  \"toAccountId\": \"{{secondaryAccountId}}\",\n  \"amount\": 1500\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/transfers" } },
+        { "name": "View transactions", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/accounts/{{primaryAccountId}}/transactions" } }
+      ]
+    }
+  ]
+}
