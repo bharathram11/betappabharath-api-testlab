@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import "./request-helper.css";
 
 export const metadata: Metadata = {
   title: "BetappaBharath Banking API TestLab",

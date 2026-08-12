@@ -1,5 +1,5 @@
 {
-  "name": "site-creator-vinext-starter",
+  "name": "betappabharath-api-testlab",
   "version": "0.1.0",
   "private": true,
   "engines": {
@@ -11,7 +11,9 @@
     "start": "vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:remote": "wrangler d1 execute betappabharath-api-testlab-db --remote --file=drizzle/0000_create_feedback.sql && wrangler d1 execute betappabharath-api-testlab-db --remote --file=drizzle/0001_persistent_banking.sql",
+    "deploy": "npm run build && wrangler deploy --config dist/server/wrangler.json"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",
