@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./request-helper.css";
+import "./token-cleanup.css";
 import VisitTracker from "./VisitTracker";
 
 export const metadata: Metadata = {

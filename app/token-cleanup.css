@@ -1,0 +1,3 @@
+.practice-toolbar > section:first-child small {
+  display: none;
+}
