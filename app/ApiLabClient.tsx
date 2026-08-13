@@ -33,7 +33,7 @@ const updateCustomerBody = `{
 }`;
 
 const scenarios: Scenario[] = [
-  { group: "Authentication", label: "Generate access token", method: "POST", description: "Start here: receive a Bearer token with expiry details.", path: () => "/api/v1/auth/token", body: '{\n  "email": "learner@example.test",\n  "password": "practice-password",\n  "expires_in": 900\n}', expected: "201 Created" },
+  { group: "Authentication", label: "Generate access token", method: "POST", description: "Start here: receive a Bearer token. expires_in is passed in seconds, not milliseconds.", path: () => "/api/v1/auth/token", body: '{\n  "email": "learner@example.test",\n  "password": "practice-password",\n  "expires_in": 900\n}', expected: "201 Created" },
   { group: "Customers", label: "List all customers", method: "GET", description: "See every customer created in this session.", path: () => "/api/v1/customers", expected: "200 OK" },
   { group: "Customers", label: "Create customer", method: "POST", description: "Create a customer and receive a new Customer ID.", path: () => "/api/v1/customers", body: customerBody, expected: "201 Created" },
   { group: "Customers", label: "Get one customer", method: "GET", description: "Find one customer using the saved Customer ID.", path: (ids) => `/api/v1/customers/${ids.customerId || "CUST-1001"}`, expected: "200 OK / 404 Not Found" },

@@ -28,6 +28,7 @@ export async function POST(request: Request) {
         access_token: accessToken,
         token_type: "Bearer",
         expires_in: expiresIn,
+        expires_in_unit: "seconds",
         expires_in_minutes: expiresIn / 60,
         expires_at: new Date(expiresAt).toISOString(),
         scope: "users:read users:write",
