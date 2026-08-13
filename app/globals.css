@@ -25,3 +25,31 @@ main:not(.swagger-page){display:flex;flex-direction:column}main:not(.swagger-pag
 
 /* Compact vertical rhythm */
 body .hero{padding-bottom:42px}body .hero-grid{margin-top:34px;gap:48px}body .code-card pre{min-height:170px;padding:22px 24px}.beginner-section{padding-top:48px;padding-bottom:20px}.site-introduction{padding:24px;gap:24px}.what-you-practice{margin-bottom:34px}.what-you-practice article,.beginner-steps article{padding:17px}.beginner-steps{margin-top:22px}.banking-flow-guide{padding-top:44px;padding-bottom:44px}.flow-steps{margin-top:20px}.dashboard-live-layout{padding-top:22px;padding-bottom:42px}.dashboard-stats{margin-top:17px}.dashboard-stats article,.dashboard-details>section{padding:14px}.playground-section{padding-top:52px;padding-bottom:52px}.section-heading>p:last-child{margin-bottom:22px}.practice-toolbar>section{padding:14px}.request-panel,.response-panel{padding:20px}.request-panel label{margin-top:17px}.response-panel pre{min-height:205px}.empty-state{min-height:230px}.assertion-lab{padding-top:48px;padding-bottom:48px}.assertion-workspace{margin-top:18px}.challenge-section{padding-top:52px;padding-bottom:52px}.challenge-grid{margin-top:24px}.challenge-grid article{padding:19px}.status-section{padding-bottom:52px}.swagger-hero{padding-top:30px;padding-bottom:30px}.swagger-new-layout{padding-bottom:50px}.swagger-endpoints>section{margin-bottom:20px}@media(max-width:700px){body .hero-grid{margin-top:30px;gap:30px}.beginner-section,.playground-section,.assertion-lab,.banking-flow-guide,.challenge-section{padding-top:36px;padding-bottom:36px}.site-introduction{padding:18px}.what-you-practice{margin-bottom:28px}.dashboard-live-layout{padding-bottom:32px}}
+
+/* Landing-page UI refinement: preserve the existing design while tightening its hierarchy. */
+body .hero{padding-bottom:35px}
+body .hero:before{opacity:.09}
+body .hero nav{padding-bottom:14px;gap:4px}
+body .hero nav strong{margin-right:14px}
+body .hero nav a{padding:8px 10px}
+body .hero nav a:last-child{padding:9px 14px;box-shadow:0 5px 14px #4ed7c426}
+body .hero-grid{margin-top:28px;gap:42px}
+body .hero h1{font-size:clamp(40px,4.5vw,60px);line-height:1.06;letter-spacing:-2.7px}
+body .hero-copy{margin:17px 0 20px;font-size:15px;line-height:1.65}
+body .hero-copy:after{margin-top:17px}
+body .hero-actions{gap:10px;margin-top:21px}
+body .primary,body .secondary{min-height:42px;padding:11px 16px;border-radius:9px;font-size:12px}
+body .code-card{justify-self:end;width:min(100%,460px);border-color:#52718d;border-radius:18px;box-shadow:0 18px 42px #020b1655,10px 10px 0 #31587b38;transform:perspective(900px) rotateY(-1deg)}
+body .code-card:before{right:14px;top:-25px}
+body .code-top{padding:12px 16px}
+body .code-card pre{min-height:148px;padding:20px 22px;font-size:11px;line-height:1.65}
+body .code-card p{padding:11px 16px}
+.beginner-section{padding-top:42px;padding-bottom:16px}
+.site-introduction{gap:22px;padding:22px;border-radius:15px}
+.site-introduction>div>p:last-child{margin-top:14px;line-height:1.65}
+.intro-audience{padding:16px}
+.what-you-practice{margin-top:14px;margin-bottom:30px}
+.what-you-practice article{padding:16px;border-radius:10px}
+@media(max-width:900px){body .hero-grid{gap:34px}body .code-card{justify-self:start;transform:none}}
+@media(max-width:700px){body .hero{padding-bottom:32px}body .hero nav{gap:2px}body .hero nav strong{margin-right:auto}body .hero h1{font-size:clamp(38px,11vw,48px);letter-spacing:-2.2px}body .hero-copy{font-size:14px}.hero-actions{gap:8px}.download-collection{display:none}.beginner-section{padding-top:34px}.site-introduction{padding:18px}.what-you-practice{margin-bottom:26px}}
+@media(max-width:440px){body .hero nav a{padding:7px 8px;font-size:10px}body .hero nav a:last-child{padding:8px 11px}.hero-actions .secondary{width:100%}}
