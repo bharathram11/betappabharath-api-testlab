@@ -33,6 +33,7 @@ const updateCustomerBody = `{
 }`;
 
 const scenarios: Scenario[] = [
+  { group: "Customers", label: "Authentication — generate token", method: "POST", description: "Start here: receive a Bearer token with expiry details.", path: () => "/api/v1/auth/token", body: '{\n  "email": "learner@example.test",\n  "password": "practice-password",\n  "expires_in": 900\n}', expected: "201 Created" },
   { group: "Customers", label: "List all customers", method: "GET", description: "See every customer created in this session.", path: () => "/api/v1/customers", expected: "200 OK" },
   { group: "Customers", label: "Create customer", method: "POST", description: "Create a customer and receive a new Customer ID.", path: () => "/api/v1/customers", body: customerBody, expected: "201 Created" },
   { group: "Customers", label: "Get one customer", method: "GET", description: "Find one customer using the saved Customer ID.", path: (ids) => `/api/v1/customers/${ids.customerId || "CUST-1001"}`, expected: "200 OK / 404 Not Found" },
@@ -53,10 +54,11 @@ const scenarios: Scenario[] = [
 const methodHelp: Record<string, string> = { GET: "Read data", POST: "Create data", PUT: "Replace all data", PATCH: "Change part of data", DELETE: "Remove data" };
 
 function assertionField(index: number) {
-  if ([1, 5, 6, 11, 12].includes(index)) return "data.id";
-  if ([0, 7, 14].includes(index)) return "data";
-  if ([2, 3, 8, 9].includes(index)) return "data.id";
-  if (index === 13) return "data.reference";
+  if (index === 0) return "access_token";
+  if ([2, 6, 7, 12, 13].includes(index)) return "data.id";
+  if ([1, 8, 15].includes(index)) return "data";
+  if ([3, 4, 9, 10].includes(index)) return "data.id";
+  if (index === 14) return "data.reference";
   return "";
 }
 
@@ -84,7 +86,7 @@ export default function ApiLabClient() {
   const [now, setNow] = useState(Date.now());
   const [creatingToken, setCreatingToken] = useState(false);
   const [ids, setIds] = useState<Ids>({ customerId: "", primaryAccountId: "", secondaryAccountId: "" });
-  const [selected, setSelected] = useState(1);
+  const [selected, setSelected] = useState(2);
   const [path, setPath] = useState("http://localhost:3000/api/v1/customers");
   const [body, setBody] = useState(customerBody);
   const [bodyError, setBodyError] = useState("");
@@ -117,6 +119,7 @@ export default function ApiLabClient() {
   const transferBody = useMemo(() => JSON.stringify({ fromAccountId: ids.primaryAccountId || "ACC-5001", toAccountId: ids.secondaryAccountId || "ACC-5002", amount: 1500 }, null, 2), [ids]);
   const displayUrl = path.startsWith("http") ? path : `${baseUrl}${path}`;
   const needsBody = ["POST", "PUT", "PATCH"].includes(scenario.method);
+  const isAuthentication = scenario.path(ids) === "/api/v1/auth/token";
   const tokenActive = Boolean(token) && (!tokenExpiresAt || tokenExpiresAt > now);
   const tokenStatus = !token ? "Required before sending" : tokenExpiresAt ? formatRemaining(tokenExpiresAt - now) : "Expiry unknown";
   const successfulRequests = history.filter((item) => item.status >= 200 && item.status < 300).length;
@@ -209,7 +212,7 @@ export default function ApiLabClient() {
 
   async function sendRequest(event: FormEvent) {
     event.preventDefault();
-    if (!tokenActive) {
+    if (!isAuthentication && !tokenActive) {
       setResult({ status: 401, elapsed: 0, data: { error: "Token expired", message: "Choose a validity period and create a new token." } });
       return;
     }
@@ -228,15 +231,20 @@ export default function ApiLabClient() {
     const started = performance.now();
     try {
       const requestId = `req_${crypto.randomUUID().slice(0, 8)}`;
-      const requestHeaders = { "Content-Type": "application/json", Accept: "application/json", Authorization: `Bearer ${token}`, "X-Request-ID": requestId };
+      const requestHeaders: Record<string, string> = { "Content-Type": "application/json", Accept: "application/json", "X-Request-ID": requestId };
+      if (!isAuthentication) requestHeaders.Authorization = `Bearer ${token}`;
       const requestBody = needsBody && body.trim() ? body : undefined;
       const response = await fetch(path, { method: scenario.method, headers: requestHeaders, body: requestBody });
       const data = response.status === 204 ? null : await response.json();
+      if (isAuthentication && response.ok && data && typeof data === "object" && "access_token" in data) {
+        setToken(String(data.access_token));
+        if ("expires_at" in data) setTokenExpiresAt(Date.parse(String(data.expires_at)));
+      }
       if (response.ok && data && typeof data === "object" && "data" in data && data.data && typeof data.data === "object" && "id" in data.data) {
         const newId = String(data.data.id);
-        if (selected === 1) setIds((current) => ({ ...current, customerId: newId }));
-        if (selected === 5) setIds((current) => ({ ...current, primaryAccountId: newId }));
-        if (selected === 6) setIds((current) => ({ ...current, secondaryAccountId: newId }));
+        if (selected === 2) setIds((current) => ({ ...current, customerId: newId }));
+        if (selected === 6) setIds((current) => ({ ...current, primaryAccountId: newId }));
+        if (selected === 7) setIds((current) => ({ ...current, secondaryAccountId: newId }));
       }
       setResult({ status: response.status, elapsed: Math.round(performance.now() - started), data: data ?? { message: "Success. A 204 response intentionally has no body." }, requestId, contentType: response.headers.get("content-type") ?? "application/json", timestamp: new Date().toLocaleTimeString() });
       setInspector({ method: scenario.method, url: path, requestHeaders, requestBody, responseHeaders: Object.fromEntries(response.headers.entries()) });
