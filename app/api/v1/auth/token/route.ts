@@ -11,6 +11,17 @@ export async function POST(request: Request) {
     }
 
     const requestedExpiresIn = Number(body.expires_in ?? 3600);
+    const allowedDurations = [900, 1800, 2700, 3600];
+    if (!allowedDurations.includes(requestedExpiresIn)) {
+      return Response.json(
+        {
+          error: "Invalid expires_in",
+          message: "Use 900, 1800, 2700, or 3600 seconds.",
+          allowed_values: allowedDurations,
+        },
+        { status: 400 },
+      );
+    }
     const { accessToken, expiresIn, expiresAt } = await issueAccessToken(String(body.email), requestedExpiresIn);
     return Response.json(
       {
