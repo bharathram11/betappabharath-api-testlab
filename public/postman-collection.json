@@ -22,13 +22,13 @@
         {
           "name": "Create access token",
           "auth": { "type": "noauth" },
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 201', () => pm.response.to.have.status(201));", "const json = pm.response.json();", "pm.collectionVariables.set('accessToken', json.access_token);"] } }],
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 201', () => pm.response.to.have.status(201));", "const json = pm.response.json();", "pm.test('Token and expiry are returned', () => { pm.expect(json.access_token).to.be.a('string'); pm.expect(json.expires_in).to.eql(900); pm.expect(json.expires_at).to.be.a('string'); });", "pm.collectionVariables.set('accessToken', json.access_token);"] } }],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"bharath@example.test\",\n  \"password\": \"practice-password\"\n}", "options": { "raw": { "language": "json" } } },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"bharath@example.test\",\n  \"password\": \"practice-password\",\n  \"expires_in\": 900\n}", "options": { "raw": { "language": "json" } } },
             "url": "{{baseUrl}}/api/v1/auth/token",
-            "description": "Creates a one-hour bearer token and saves it automatically as accessToken."
+            "description": "Creates a 15-minute bearer token, returns expires_in and expires_at, and saves the token automatically as accessToken. Allowed expiry values: 900, 1800, 2700, or 3600 seconds."
           }
         }
       ]

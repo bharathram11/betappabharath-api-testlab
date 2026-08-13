@@ -192,10 +192,16 @@ export default function ApiLabClient() {
 
   async function createToken(requestedDuration = tokenDuration) {
     setCreatingToken(true);
+    const startedAt = performance.now();
     try {
       const response = await fetch("/api/v1/auth/token", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: "learner@example.test", password: "practice-password", expires_in: requestedDuration }) });
       const data = await response.json();
-      if (response.ok) { setToken(data.access_token); setTokenExpiresAt(Date.parse(data.expires_at)); return data.access_token as string; }
+      if (response.ok) {
+        setToken(data.access_token);
+        setTokenExpiresAt(Date.parse(data.expires_at));
+        setResult({ status: response.status, elapsed: Math.round(performance.now() - startedAt), data, contentType: response.headers.get("content-type") ?? "application/json", timestamp: new Date().toISOString() });
+        return data.access_token as string;
+      }
       setResult({ status: response.status, elapsed: 0, data });
     } catch { setResult({ status: 0, elapsed: 0, data: { error: "The practice server could not create a token." } }); }
     finally { setCreatingToken(false); }
