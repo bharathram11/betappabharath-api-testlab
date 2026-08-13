@@ -1,12 +1,14 @@
 import { db } from "./_db";
 
-export async function issueAccessToken(email: string) {
+export async function issueAccessToken(email: string, requestedExpiresIn: number) {
   const database = await db();
   const accessToken = `bbl_${crypto.randomUUID().replaceAll("-", "")}`;
   const sessionId = crypto.randomUUID();
-  const expiresIn = 60 * 60 * 24 * 30;
-  await database.prepare("INSERT INTO practice_sessions (id, token, email, expires_at, created_at) VALUES (?, ?, ?, ?, ?)").bind(sessionId, accessToken, email, Date.now() + expiresIn * 1000, new Date().toISOString()).run();
-  return { accessToken, expiresIn, sessionId };
+  const allowedDurations = [60 * 15, 60 * 30, 60 * 45, 60 * 60];
+  const expiresIn = allowedDurations.includes(requestedExpiresIn) ? requestedExpiresIn : 60 * 60;
+  const expiresAt = Date.now() + expiresIn * 1000;
+  await database.prepare("INSERT INTO practice_sessions (id, token, email, expires_at, created_at) VALUES (?, ?, ?, ?, ?)").bind(sessionId, accessToken, email, expiresAt, new Date().toISOString()).run();
+  return { accessToken, expiresIn, expiresAt, sessionId };
 }
 
 export async function getSessionId(request: Request) {

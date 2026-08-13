@@ -10,12 +10,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const { accessToken, expiresIn } = await issueAccessToken(String(body.email));
+    const requestedExpiresIn = Number(body.expires_in ?? 3600);
+    const { accessToken, expiresIn, expiresAt } = await issueAccessToken(String(body.email), requestedExpiresIn);
     return Response.json(
       {
         access_token: accessToken,
         token_type: "Bearer",
         expires_in: expiresIn,
+        expires_at: new Date(expiresAt).toISOString(),
         scope: "users:read users:write",
       },
       { status: 201, headers: { "Cache-Control": "no-store" } },

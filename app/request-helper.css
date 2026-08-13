@@ -22,6 +22,7 @@
   font-size: 10px;
   font-weight: 800;
 }
+.body-tools button.random-data{margin-right:auto;border-color:#168575;background:#e7f8f4;color:#087b68}.body-action-message{margin:0 0 8px;padding:7px 9px;border-radius:6px;background:#e7f8f4;color:#087b68;font-size:10px;font-weight:700}
 
 .request-panel textarea.json-invalid {
   border-color: #dc3f3f;
@@ -38,3 +39,31 @@
   font-size: 11px;
   line-height: 1.5;
 }
+
+.token-config-section {
+  display: grid;
+  grid-template-columns: 1.4fr .7fr .9fr;
+  gap: 18px;
+  align-items: center;
+  max-width: 1200px;
+  margin: 35px auto;
+  padding: 24px max(3vw, 22px);
+  border: 1px solid #dce5ec;
+  border-radius: 14px;
+  background: #fff;
+}
+
+.token-config-section h2 { margin: 0 0 6px; font-size: 22px; }
+.token-config-section p { margin: 0; color: #64748b; font-size: 12px; }
+.token-config-section label { display: grid; gap: 7px; font-size: 11px; font-weight: 800; }
+.token-config-section select { padding: 10px; border: 1px solid #bdcad8; border-radius: 7px; background: #fff; }
+.token-config-section article { display: grid; gap: 5px; padding: 14px; border-radius: 9px; background: #dff5f0; }
+.token-config-section article span { color: #087b68; font-weight: 800; }
+.token-config-section article b { font-size: 10px; color: #526579; }
+.token-config-section article.expired { background: #ffe8e8; }
+.token-config-section article.expired span { color: #b42323; }
+
+@media (max-width: 800px) {
+  .token-config-section { grid-template-columns: 1fr; margin: 25px 20px; }
+}
+.token-duration{display:flex!important;align-items:center;gap:8px;margin:0 0 10px!important;font-size:10px!important}.token-duration select{min-width:125px;border:1px solid #bdcad8;border-radius:6px;background:#fff;padding:7px}.token-expired{color:#b42323!important}

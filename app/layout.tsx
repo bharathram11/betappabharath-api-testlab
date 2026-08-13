@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./request-helper.css";
+import VisitTracker from "./VisitTracker";
 
 export const metadata: Metadata = {
   title: "BetappaBharath Banking API TestLab",
@@ -19,5 +20,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en"><body><VisitTracker />{children}</body></html>;
 }

@@ -5,9 +5,11 @@ const statements = [
   `CREATE TABLE IF NOT EXISTS bank_customers (id TEXT NOT NULL, session_id TEXT NOT NULL, first_name TEXT NOT NULL, middle_name TEXT NOT NULL, last_name TEXT NOT NULL, suffix TEXT NOT NULL, short_name TEXT NOT NULL, maiden_name TEXT NOT NULL, date_of_birth TEXT NOT NULL, is_minor_customer INTEGER NOT NULL, gender TEXT NOT NULL, birth_country TEXT NOT NULL, nationality TEXT NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (session_id, id))`,
   `CREATE TABLE IF NOT EXISTS bank_accounts (id TEXT NOT NULL, session_id TEXT NOT NULL, customer_id TEXT NOT NULL, account_type TEXT NOT NULL, nickname TEXT NOT NULL, currency TEXT NOT NULL, balance REAL NOT NULL, status TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (session_id, id))`,
   `CREATE TABLE IF NOT EXISTS bank_transactions (id TEXT NOT NULL, session_id TEXT NOT NULL, account_id TEXT NOT NULL, type TEXT NOT NULL, amount REAL NOT NULL, currency TEXT NOT NULL, reference TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY (session_id, id))`,
+  `CREATE TABLE IF NOT EXISTS site_visits (id INTEGER PRIMARY KEY AUTOINCREMENT, visitor_id TEXT NOT NULL, opened_at TEXT NOT NULL, path TEXT NOT NULL, country TEXT NOT NULL, city TEXT NOT NULL, device TEXT NOT NULL)`,
   `CREATE INDEX IF NOT EXISTS idx_customers_session ON bank_customers (session_id, created_at DESC)`,
   `CREATE INDEX IF NOT EXISTS idx_accounts_session_customer ON bank_accounts (session_id, customer_id)`,
   `CREATE INDEX IF NOT EXISTS idx_transactions_session_account ON bank_transactions (session_id, account_id, created_at DESC)`,
+  `CREATE INDEX IF NOT EXISTS idx_site_visits_opened ON site_visits (opened_at DESC)`,
 ];
 
 let initialized = false;
