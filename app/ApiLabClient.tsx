@@ -94,7 +94,10 @@ function formatResponseForDisplay(data: unknown) {
     hour12: true,
     timeZoneName: "short",
   }).format(new Date(response.expires_at));
-  return { ...response, expires_at: expiresAtIst };
+  const expiresIn = typeof response.expires_in === "number"
+    ? `${response.expires_in} seconds (${response.expires_in / 60} minutes)`
+    : response.expires_in;
+  return { ...response, expires_in: expiresIn, expires_at: expiresAtIst };
 }
 
 export default function ApiLabClient() {
