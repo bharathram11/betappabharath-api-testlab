@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 type Visit = { openedAt:string; path:string; country:string; city:string; device:string };
-type Analytics = { totals:{ totalOpens:number; uniqueVisitors:number; visitorsToday:number; activeNow:number }; recent:Visit[] };
+type Analytics = { recent:Visit[] };
 
 function relativeTime(date: string) {
   const seconds = Math.max(0, Math.floor((Date.now() - Date.parse(date)) / 1000));
@@ -34,8 +34,7 @@ export default function PublicVisitorActivity() {
   }, [load]);
 
   return <section className="public-visitors" aria-labelledby="visitor-title">
-    <div className="public-visitor-heading"><div><p className="eyebrow">Live community</p><h2 id="visitor-title">Live traffic</h2><p>See anonymous site openings from the learning community.</p></div><span><i /> Live now</span></div>
-    {analytics ? <div className="public-visitor-layout"><div className="public-visitor-stats"><article><b>{analytics.totals.activeNow}</b><span>Active now</span><small>Last 5 minutes</small></article><article><b>{analytics.totals.visitorsToday}</b><span>Visitors today</span><small>Unique browsers</small></article><article><b>{analytics.totals.uniqueVisitors}</b><span>All visitors</span><small>Since tracking began</small></article><article><b>{analytics.totals.totalOpens}</b><span>Total opens</span><small>All sessions</small></article></div><div className="public-visitor-feed"><h3>Recent site opens</h3>{analytics.recent.slice(0,5).map((visit,index)=><article key={`${visit.openedAt}-${index}`}><span className="public-visit-dot"/><div><b>{visit.city !== "Unknown" ? `${visit.city}, ${visit.country}` : visit.country}</b><p>Opened <code>{visit.path}</code> · {visit.device}</p></div><time>{relativeTime(visit.openedAt)}</time></article>)}{!analytics.recent.length && <p className="public-visitor-empty">You are the first recorded visitor.</p>}</div></div> : <div className="public-visitor-loading">{error ? "Visitor activity is temporarily unavailable." : "Loading live visitor activity…"}</div>}
+    {analytics ? <div className="public-visitor-feed"><h3 id="visitor-title">Recent site opens</h3>{analytics.recent.slice(0,5).map((visit,index)=><article key={`${visit.openedAt}-${index}`}><span className="public-visit-dot"/><div><b>{visit.city !== "Unknown" ? `${visit.city}, ${visit.country}` : visit.country}</b><p>Opened <code>{visit.path}</code> · {visit.device}</p></div><time>{relativeTime(visit.openedAt)}</time></article>)}{!analytics.recent.length && <p className="public-visitor-empty">You are the first recorded visitor.</p>}</div> : <div className="public-visitor-loading">{error ? "Visitor activity is temporarily unavailable." : "Loading recent site openings…"}</div>}
     <p className="public-visitor-privacy">Privacy friendly: no names, emails, complete IP addresses, or tokens are collected.</p>
   </section>;
 }
