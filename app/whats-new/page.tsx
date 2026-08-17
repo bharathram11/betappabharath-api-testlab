@@ -66,7 +66,7 @@ export default function WhatsNewPage() {
   return <main className="updates-page">
     <header className="updates-nav">
       <Link href="/"><span>B</span><strong>BetappaBharath <em>API TestLab</em></strong></Link>
-      <nav><Link href="/guide">User Guide</Link><Link href="/swagger">Swagger</Link><Link className="updates-primary" href="/practice#playground">Open Practice Lab</Link></nav>
+      <nav><Link href="/guide">User Guide</Link><Link href="/swagger">Swagger</Link><a className="updates-primary" href="/#playground">Open Practice Lab</a></nav>
     </header>
 
     <section className="updates-hero">

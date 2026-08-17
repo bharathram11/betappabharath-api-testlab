@@ -58,7 +58,7 @@ export default function FeedbackManager() {
   }
 
   return <main className="owner-page">
-    <header><a href="/feedback">← Public feedback</a><strong>BetappaBharath · Owner controls</strong><a href="/practice#playground">Practice lab</a></header>
+    <header><a href="/feedback">← Public feedback</a><strong>BetappaBharath · Owner controls</strong><a href="/#playground">Practice lab</a></header>
     <section className="owner-manager">
       <p className="owner-kicker">PRIVATE MANAGEMENT</p><h1>Owner dashboard</h1>
       <p>Enter your private owner key to see anonymous site-opening activity and manage feedback.</p>

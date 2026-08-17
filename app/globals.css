@@ -53,3 +53,5 @@ body .code-card p{padding:11px 16px}
 @media(max-width:900px){body .hero-grid{gap:34px}body .code-card{justify-self:start;transform:none}}
 @media(max-width:700px){body .hero{padding-bottom:32px}body .hero nav{gap:2px}body .hero nav strong{margin-right:auto}body .hero h1{font-size:clamp(38px,11vw,48px);letter-spacing:-2.2px}body .hero-copy{font-size:14px}.hero-actions{gap:8px}.download-collection{display:none}.beginner-section{padding-top:34px}.site-introduction{padding:18px}.what-you-practice{margin-bottom:26px}}
 @media(max-width:440px){body .hero nav a{padding:7px 8px;font-size:10px}body .hero nav a:last-child{padding:8px 11px}.hero-actions .secondary{width:100%}}
+.swagger-route-practice{position:fixed;top:10px;right:92px;z-index:50;padding:9px 13px;border-radius:7px;background:#70e0ca;color:#10243e;text-decoration:none;font-size:11px;font-weight:800;box-shadow:0 5px 14px #071a2f35}
+@media(max-width:700px){.swagger-route-practice{right:18px}.swagger-nav>span{display:none}}
