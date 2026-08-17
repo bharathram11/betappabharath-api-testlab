@@ -1,3 +1,44 @@
 .practice-toolbar > section:first-child small {
   display: none;
 }
+
+.whats-new-fab {
+  position: fixed;
+  right: 112px;
+  bottom: 22px;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 13px;
+  border: 1px solid #315bd6;
+  border-radius: 999px;
+  background: #fff;
+  color: #173c84;
+  box-shadow: 0 10px 24px #10243e24;
+  font-size: 10px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.whats-new-fab span {
+  padding: 3px 6px;
+  border-radius: 999px;
+  background: #315bd6;
+  color: #fff;
+  font-size: 8px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+
+.whats-new-fab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px #10243e32;
+}
+
+@media (max-width: 560px) {
+  .whats-new-fab {
+    right: 18px;
+    bottom: 66px;
+  }
+}
