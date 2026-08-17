@@ -26,7 +26,7 @@ export function LearningToolsStyles() {
 }
 
 export function ModeSwitcher({ mode, onChange }: { mode: Mode; onChange: (mode: Mode) => void }) {
-  return <section className="mode-switcher" aria-label="Practice experience">
+  return <section id="learn" className="mode-switcher" aria-label="Practice experience">
     <div><span className="mode-icon">◎</span><div><b>Choose your learning style</b><p>{mode === "beginner" ? "Helpful explanations are visible." : "A focused workspace for independent testing."}</p></div></div>
     <div className="mode-options">
       <button type="button" className={mode === "beginner" ? "active" : ""} onClick={() => onChange("beginner")}><b>Beginner mode</b><span>Guided learning</span></button>

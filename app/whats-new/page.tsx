@@ -16,6 +16,7 @@ const releases = [
       ["Added", "Rest Assured Java generation with JUnit status and JSON-path assertions."],
       ["Added", "Playwright TypeScript generation using APIRequestContext and expect assertions."],
       ["Added", "Copy code, framework setup help, and support for GET, POST, PUT, PATCH, and DELETE."],
+      ["Improved", "A sticky Learn, Practice, Automate, and Results navigator makes the long workspace easier to explore."],
       ["Improved", "204 No Content requests avoid invalid JSON-response parsing."],
       ["Improved", "Real Bearer tokens are replaced by a safe ACCESS_TOKEN environment variable."],
     ],
