@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "BetappaBharath Banking API TestLab",
-    "description": "A ready-to-run banking API practice collection. Start the TestLab server, run Create access token, then try customer, account, transaction and transfer requests in any order.",
+    "description": "A ready-to-run collection for the live BetappaBharath Banking API TestLab. Generate an access token first, then practise customer, account, transaction and transfer APIs without running a local server.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -9,7 +9,7 @@
     "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
   },
   "variable": [
-    { "key": "baseUrl", "value": "http://localhost:3000", "type": "string" },
+    { "key": "baseUrl", "value": "https://betappabharath-api-testlab.bharathbetappa.workers.dev", "type": "string" },
     { "key": "accessToken", "value": "", "type": "string" },
     { "key": "customerId", "value": "CUST-1001", "type": "string" },
     { "key": "primaryAccountId", "value": "ACC-5001", "type": "string" },
@@ -22,13 +22,13 @@
         {
           "name": "Create access token",
           "auth": { "type": "noauth" },
-          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 201', () => pm.response.to.have.status(201));", "const json = pm.response.json();", "pm.test('Token and expiry are returned', () => { pm.expect(json.access_token).to.be.a('string'); pm.expect(json.expires_in).to.eql(900); pm.expect(json.expires_at).to.be.a('string'); });", "pm.collectionVariables.set('accessToken', json.access_token);"] } }],
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 201', () => pm.response.to.have.status(201));", "const json = pm.response.json();", "pm.test('Token and expiry are returned', () => { pm.expect(json.access_token).to.be.a('string'); pm.expect(json.expires_in).to.eql(900); pm.expect(json.expires_in_unit).to.eql('seconds'); pm.expect(json.expires_in_minutes).to.eql(15); pm.expect(json.expires_at).to.be.a('string'); });", "pm.collectionVariables.set('accessToken', json.access_token);"] } }],
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"bharath@example.test\",\n  \"password\": \"practice-password\",\n  \"expires_in\": 900\n}", "options": { "raw": { "language": "json" } } },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"learner@example.test\",\n  \"password\": \"practice-password\",\n  \"expires_in\": 900\n}", "options": { "raw": { "language": "json" } } },
             "url": "{{baseUrl}}/api/v1/auth/token",
-            "description": "Creates a 15-minute bearer token, returns expires_in and expires_at, and saves the token automatically as accessToken. Allowed expiry values: 900, 1800, 2700, or 3600 seconds."
+            "description": "Creates a Bearer token against the live API and saves it automatically as accessToken. expires_in uses seconds, not milliseconds: 900 = 15 minutes, 1800 = 30 minutes, 2700 = 45 minutes, and 3600 = 1 hour."
           }
         }
       ]
@@ -38,7 +38,7 @@
       "item": [
         {
           "name": "List all customers",
-          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/customers", "description": "Returns all customers created during the current server session." }
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/customers", "description": "Returns all customers created using the current Bearer token's isolated practice session." }
         },
         {
           "name": "Create customer",
@@ -46,7 +46,7 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Betappa\",\n  \"middleName\": \"\",\n  \"lastName\": \"Bharath\",\n  \"suffix\": \"\",\n  \"shortName\": \"\",\n  \"maidenName\": \"\",\n  \"dateOfBirth\": \"2000-07-17\",\n  \"isMinorCustomer\": false,\n  \"gender\": \"M\",\n  \"birthCountry\": \"IN\",\n  \"nationality\": \"IN\"\n}", "options": { "raw": { "language": "json" } } },
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Betappa\",\n  \"middleName\": \"\",\n  \"lastName\": \"Bharath\",\n  \"dateOfBirth\": \"2000-07-17\",\n  \"isMinorCustomer\": false,\n  \"gender\": \"M\",\n  \"birthCountry\": \"IN\",\n  \"nationality\": \"IN\"\n}", "options": { "raw": { "language": "json" } } },
             "url": "{{baseUrl}}/api/v1/customers",
             "description": "Creates a customer and saves the returned ID as customerId."
           }
@@ -57,7 +57,7 @@
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Betappa\",\n  \"middleName\": \"\",\n  \"lastName\": \"Bharath\",\n  \"suffix\": \"\",\n  \"shortName\": \"Bharath\",\n  \"maidenName\": \"\",\n  \"dateOfBirth\": \"2000-07-17\",\n  \"isMinorCustomer\": false,\n  \"gender\": \"M\",\n  \"birthCountry\": \"IN\",\n  \"nationality\": \"IN\"\n}", "options": { "raw": { "language": "json" } } },
+            "body": { "mode": "raw", "raw": "{\n  \"firstName\": \"Betappa\",\n  \"middleName\": \"\",\n  \"lastName\": \"Bharath\",\n  \"dateOfBirth\": \"2000-07-17\",\n  \"isMinorCustomer\": false,\n  \"gender\": \"M\",\n  \"birthCountry\": \"IN\",\n  \"nationality\": \"IN\"\n}", "options": { "raw": { "language": "json" } } },
             "url": "{{baseUrl}}/api/v1/customers/{{customerId}}"
           }
         },
@@ -87,7 +87,7 @@
       "name": "04 - Transactions and transfers",
       "item": [
         { "name": "Deposit money", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"type\": \"credit\",\n  \"amount\": 2500,\n  \"reference\": \"Salary credit\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/accounts/{{primaryAccountId}}/transactions" } },
-        { "name": "Withdraw money", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"type\": \"debit\",\n  \"amount\": 1500,\n  \"reference\": \"Cash withdrawal\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/accounts/{{primaryAccountId}}/transactions" } },
+        { "name": "Withdraw money", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"type\": \"debit\",\n  \"amount\": 1500,\n  \"reference\": \"Cash withdrawal\"\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/accounts/{{secondaryAccountId}}/transactions" } },
         { "name": "Transfer money", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"fromAccountId\": \"{{primaryAccountId}}\",\n  \"toAccountId\": \"{{secondaryAccountId}}\",\n  \"amount\": 1500\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/transfers" } },
         { "name": "View transactions", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/accounts/{{primaryAccountId}}/transactions" } }
       ]
