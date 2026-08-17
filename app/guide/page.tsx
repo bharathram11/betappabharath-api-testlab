@@ -5,6 +5,7 @@ const features = [
   ["Sample bank and reset", "Load a ready customer with two accounts or clear all temporary records."],
   ["Request playground", "Edit methods, complete URLs, headers, bearer tokens, and JSON bodies."],
   ["Request Inspector", "Review the exact request and response headers, then copy it as cURL."],
+  ["Automation code generator", "Turn a sent request into Rest Assured Java or Playwright TypeScript with assertions."],
   ["Assertions", "Check status codes, JSON paths, and response time automatically."],
   ["Negative testing", "Practise expected 400, 401, 404, 409, and 422 errors."],
   ["Challenges", "Complete practical tasks and save progress in the browser."],

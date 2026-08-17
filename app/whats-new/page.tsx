@@ -9,6 +9,19 @@ export const metadata: Metadata = {
 const releases = [
   {
     date: "17 August 2026",
+    version: "New feature",
+    title: "Rest Assured and Playwright code generator",
+    summary: "Turn the request you just tested into a copy-ready API automation test.",
+    changes: [
+      ["Added", "Rest Assured Java generation with JUnit status and JSON-path assertions."],
+      ["Added", "Playwright TypeScript generation using APIRequestContext and expect assertions."],
+      ["Added", "Copy code, framework setup help, and support for GET, POST, PUT, PATCH, and DELETE."],
+      ["Improved", "204 No Content requests avoid invalid JSON-response parsing."],
+      ["Improved", "Real Bearer tokens are replaced by a safe ACCESS_TOKEN environment variable."],
+    ],
+  },
+  {
+    date: "17 August 2026",
     version: "Latest update",
     title: "Live Postman collection",
     summary: "Use every current banking API directly from Postman without running localhost.",
@@ -57,7 +70,7 @@ export default function WhatsNewPage() {
 
     <section className="updates-hero">
       <div><p>Product updates</p><h1>What&apos;s new in the TestLab?</h1><span>Follow newly added features, improvements, and fixes. The newest update always appears first.</span></div>
-      <aside><b>Latest</b><strong>Live Postman collection</strong><span>Updated 17 August 2026</span></aside>
+      <aside><b>Latest</b><strong>Automation code generator</strong><span>Updated 17 August 2026</span></aside>
     </section>
 
     <section className="updates-content">
