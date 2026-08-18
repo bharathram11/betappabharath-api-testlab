@@ -67,7 +67,7 @@ export function NegativeTestingLab({ running, onRun }: { running: string; onRun:
 
 export function ChallengeBoard() {
   return <section className="challenge-board challenge-launcher">
-    <div><p className="eyebrow">New game mode</p><h2>Enter the Banking API Quest</h2><p>Complete seven real API missions: generate a token, onboard a customer, create two accounts, deposit funds, transfer money, and verify the final balance.</p><div className="challenge-features"><span>7 missions</span><span>700 XP</span><span>Live API responses</span><span>Champion badge</span></div></div>
+    <div><p className="eyebrow">New game mode</p><h2>Enter the Banking API Quest</h2><p>Build requests manually across ten real API missions, from authentication and transfers to advanced PATCH, DELETE, and negative testing.</p><div className="challenge-features"><span>10 missions</span><span>1000 XP</span><span>Manual requests</span><span>Boss levels</span></div></div>
     <div className="challenge-launch-card"><span>★</span><b>Ready, tester?</b><p>Your game opens on a separate page, so the free-practice workspace stays focused.</p><a href="/challenges">Start the challenge →</a></div>
   </section>;
 }

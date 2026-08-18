@@ -8,7 +8,7 @@ const features = [
   ["Automation code generator", "Turn a sent request into Rest Assured Java or Playwright TypeScript with assertions."],
   ["Assertions", "Check status codes, JSON paths, and response time automatically."],
   ["Negative testing", "Practise expected 400, 401, 404, 409, and 422 errors."],
-  ["Banking API Quest", "Play seven real API missions with token generation, live requests, XP, progress, and a champion badge."],
+  ["Banking API Quest", "Build method, URL, and JSON manually across ten missions with XP, boss levels, and a champion badge."],
   ["Session dashboard", "See request history, token status, and generated IDs."],
   ["Swagger reference", "Explore documented endpoints and use Try it out."],
   ["Postman collection", "Download organized requests with variables and automatic scripts."],

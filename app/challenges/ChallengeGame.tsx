@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-type MissionId = "token" | "customer" | "primary" | "secondary" | "deposit" | "transfer" | "verify";
+type MissionId = "token" | "customer" | "primary" | "secondary" | "deposit" | "transfer" | "verify" | "overdraft" | "rename" | "deleteFunded";
 type GameState = {
   token: string;
   expiresAt: number;
@@ -19,7 +19,7 @@ type Mission = {
   chapter: string;
   title: string;
   objective: string;
-  method: "GET" | "POST";
+  method: "GET" | "POST" | "PATCH" | "DELETE";
   expected: number;
   path: (state: GameState) => string;
   body?: (state: GameState) => string;
@@ -106,12 +106,44 @@ const missions: Mission[] = [
   },
   {
     id: "verify",
-    chapter: "Final Mission",
+    chapter: "Mission 07",
     title: "Audit the final balance",
     objective: "Read the salary account and inspect its balance and transaction history.",
     method: "GET",
     expected: 200,
     path: (state) => `/api/v1/accounts/${state.primaryAccountId || "{accountId}"}`,
+  },
+  {
+    id: "overdraft",
+    chapter: "Boss Mission 08",
+    title: "Prove insufficient funds",
+    objective: "Attempt to debit INR 5,000 from the goal account and produce the correct client error.",
+    method: "POST",
+    expected: 422,
+    path: (state) => `/api/v1/accounts/${state.secondaryAccountId || "{accountId}"}/transactions`,
+    body: () => JSON.stringify({ type: "debit", amount: 5000, reference: "Overdraft test" }, null, 2),
+    hints: ["type: debit", "amount: 5000", "reference: Overdraft test", "Expected response: 422 Unprocessable Entity"],
+  },
+  {
+    id: "rename",
+    chapter: "Boss Mission 09",
+    title: "Patch the goal account",
+    objective: "Use a partial update to rename the goal account to Emergency Fund.",
+    method: "PATCH",
+    expected: 200,
+    path: (state) => `/api/v1/accounts/${state.secondaryAccountId || "{accountId}"}`,
+    body: () => JSON.stringify({ nickname: "Emergency Fund" }, null, 2),
+    hints: ["nickname: Emergency Fund", "Use a partial-update HTTP method", "Only send the field being changed"],
+  },
+  {
+    id: "deleteFunded",
+    chapter: "Final Boss 10",
+    title: "Defend a funded account",
+    objective: "Attempt to delete the funded goal account and verify that the banking rule blocks it.",
+    method: "DELETE",
+    expected: 409,
+    path: (state) => `/api/v1/accounts/${state.secondaryAccountId || "{accountId}"}`,
+    hints: ["No request body is required", "Use the Goal Account ID", "Expected response: 409 Conflict"],
   },
 ];
 
@@ -132,22 +164,37 @@ function missionResponseIsValid(id: MissionId, data: unknown) {
   if (id === "primary" || id === "secondary") return String(inner.id ?? "").startsWith("ACC-");
   if (id === "deposit") return String(inner.id ?? "").startsWith("TXN-") && typeof outer.balance === "number";
   if (id === "transfer") return typeof inner.reference === "string" && Boolean(inner.fromAccount) && Boolean(inner.toAccount);
-  if (id === "verify") return String(inner.id ?? "").startsWith("ACC-") && typeof inner.balance === "number";
+  if (id === "verify") return String(inner.id ?? "").startsWith("ACC-") && inner.balance === 8000 && Array.isArray(outer.transactions);
+  if (id === "overdraft") return outer.error === "Insufficient funds";
+  if (id === "rename") return String(inner.id ?? "").startsWith("ACC-") && inner.nickname === "Emergency Fund";
+  if (id === "deleteFunded") return outer.error === "Account has balance";
   return false;
 }
 
 function validateMissionRequest(id: MissionId, value: unknown, game: GameState) {
   const body = responseObject(value);
   if (id === "token") {
-    if (!body.email || !body.password) return "Include email and password.";
+    if (body.email !== "learner@example.test" || body.password !== "practice-password") return "Use the challenge email and password shown in the hints.";
     if (![900, 1800, 2700, 3600].includes(Number(body.expires_in))) return "expires_in must be 900, 1800, 2700, or 3600 seconds.";
   }
-  if (id === "customer" && (body.firstName !== "Betappa" || body.lastName !== "Bharath" || !body.dateOfBirth || !body.gender)) return "Create Betappa Bharath and include dateOfBirth and gender.";
+  if (id === "customer" && (body.firstName !== "Betappa" || body.lastName !== "Bharath" || body.dateOfBirth !== "2000-07-17" || body.isMinorCustomer !== false || body.gender !== "M" || body.birthCountry !== "IN" || body.nationality !== "IN")) return "Use every required Betappa Bharath customer value shown in the hints.";
   if (id === "primary" && (body.accountType !== "savings" || body.nickname !== "Salary Account" || Number(body.openingBalance) !== 0)) return "Create a savings account named Salary Account with openingBalance 0.";
   if (id === "secondary" && (body.accountType !== "savings" || body.nickname !== "Goal Account" || Number(body.openingBalance) !== 0)) return "Create a savings account named Goal Account with openingBalance 0.";
-  if (id === "deposit" && (body.type !== "credit" || Number(body.amount) !== 10000)) return "Credit exactly 10000 to complete this mission.";
+  if (id === "deposit" && (body.type !== "credit" || Number(body.amount) !== 10000 || body.reference !== "Challenge salary credit")) return "Credit exactly 10000 with the required challenge reference.";
   if (id === "transfer" && (body.fromAccountId !== game.primaryAccountId || body.toAccountId !== game.secondaryAccountId || Number(body.amount) !== 2000)) return "Use the saved account IDs and transfer exactly 2000.";
+  if (id === "overdraft" && (body.type !== "debit" || Number(body.amount) !== 5000 || body.reference !== "Overdraft test")) return "Attempt a debit of exactly 5000 with the Overdraft test reference.";
+  if (id === "rename" && (body.nickname !== "Emergency Fund" || Object.keys(body).length !== 1)) return "Send only the new nickname: Emergency Fund.";
   return "";
+}
+
+function normalizeRequestPath(input: string, origin: string) {
+  try {
+    const url = new URL(input.trim(), origin);
+    if (url.origin !== origin) return { path: "", error: "Use this TestLab's live domain, not an external website." };
+    return { path: `${url.pathname}${url.search}`, error: "" };
+  } catch {
+    return { path: "", error: "Enter a valid relative path or complete URL." };
+  }
 }
 
 function emptyRequestBody(mission: Mission) {
@@ -156,9 +203,9 @@ function emptyRequestBody(mission: Mission) {
 
 function rankFor(completed: number) {
   if (completed === missions.length) return "Banking API Champion";
-  if (completed >= 5) return "Automation Ace";
-  if (completed >= 3) return "Banking Tester";
-  if (completed >= 1) return "API Explorer";
+  if (completed >= 8) return "Automation Ace";
+  if (completed >= 5) return "Banking Tester";
+  if (completed >= 2) return "API Explorer";
   return "QA Rookie";
 }
 
@@ -179,13 +226,14 @@ export default function ChallengeGame() {
   const [now, setNow] = useState(0);
   const [ready, setReady] = useState(false);
   const [showHints, setShowHints] = useState(false);
+  const [requestMethod, setRequestMethod] = useState("");
+  const [requestUrl, setRequestUrl] = useState("");
 
   const mission = missions[selected];
   const score = game.completed.length * 100;
   const progress = Math.round(game.completed.length / missions.length * 100);
   const tokenActive = Boolean(game.token) && game.expiresAt > now;
   const currentPath = mission.path(game);
-  const fullUrl = `${origin}${currentPath}`;
   const needsBody = Boolean(mission.body);
   const isComplete = game.completed.includes(mission.id);
   const nextMission = missions.findIndex((item) => !game.completed.includes(item.id));
@@ -195,15 +243,18 @@ export default function ChallengeGame() {
     if (!tokenActive) return "Generate an active token in Mission 01 first.";
     if (["primary", "secondary"].includes(mission.id) && !game.customerId) return "Create a customer in Mission 02 first.";
     if (["deposit", "verify"].includes(mission.id) && !game.primaryAccountId) return "Create the salary account in Mission 03 first.";
-    if (mission.id === "transfer" && (!game.primaryAccountId || !game.secondaryAccountId)) return "Create both accounts before attempting the transfer.";
+    if (mission.id === "transfer" && (!game.primaryAccountId || !game.secondaryAccountId || !game.completed.includes("deposit"))) return "Create both accounts and complete the deposit mission first.";
+    if (["verify", "overdraft", "rename", "deleteFunded"].includes(mission.id) && !game.completed.includes("transfer")) return "Complete the transfer mission before entering the advanced levels.";
     return "";
-  }, [mission.id, tokenActive, game.customerId, game.primaryAccountId, game.secondaryAccountId]);
+  }, [mission.id, tokenActive, game.customerId, game.primaryAccountId, game.secondaryAccountId, game.completed]);
 
   useEffect(() => {
     setOrigin(window.location.origin);
     setNow(Date.now());
     try {
-      const saved = sessionStorage.getItem("bbl-challenge-game");
+      sessionStorage.removeItem("bbl-challenge-game");
+      sessionStorage.removeItem("bbl-challenge-game-v3");
+      const saved = sessionStorage.getItem("bbl-challenge-game-v4");
       if (saved) {
         const restored = { ...emptyGame, ...JSON.parse(saved) } as GameState;
         setGame(restored);
@@ -214,7 +265,7 @@ export default function ChallengeGame() {
         setMessage(restored.completed.length === missions.length ? "Challenge completed. Your champion badge is ready." : "Your challenge session has been restored.");
       }
     } catch {
-      sessionStorage.removeItem("bbl-challenge-game");
+      sessionStorage.removeItem("bbl-challenge-game-v4");
     }
     setReady(true);
   }, []);
@@ -225,13 +276,15 @@ export default function ChallengeGame() {
   }, []);
 
   useEffect(() => {
-    if (ready) sessionStorage.setItem("bbl-challenge-game", JSON.stringify(game));
+    if (ready) sessionStorage.setItem("bbl-challenge-game-v4", JSON.stringify(game));
   }, [game, ready]);
 
   function chooseMission(index: number) {
     setSelected(index);
     setBody(emptyRequestBody(missions[index]));
     setShowHints(false);
+    setRequestMethod("");
+    setRequestUrl("");
     setResult(null);
     setMessage(missions[index].objective);
   }
@@ -241,9 +294,13 @@ export default function ChallengeGame() {
     setSelected(0);
     setBody(emptyRequestBody(missions[0]));
     setShowHints(false);
+    setRequestMethod("");
+    setRequestUrl("");
     setResult(null);
     setMessage("New game created. Generate a token to begin.");
     sessionStorage.removeItem("bbl-challenge-game");
+    sessionStorage.removeItem("bbl-challenge-game-v3");
+    sessionStorage.removeItem("bbl-challenge-game-v4");
   }
 
   function clearBody() {
@@ -263,6 +320,29 @@ export default function ChallengeGame() {
   async function sendRequest(event: React.FormEvent) {
     event.preventDefault();
     if (prerequisite || loading) return;
+    if (!requestMethod) {
+      setMessage("Challenge check failed: choose an HTTP method.");
+      return;
+    }
+    if (requestMethod !== mission.method) {
+      setGame((current) => ({ ...current, attempts: current.attempts + 1, streak: 0 }));
+      setMessage(`Challenge check failed: ${requestMethod} is not the correct method for this mission.`);
+      return;
+    }
+    if (!requestUrl.trim()) {
+      setMessage("Challenge check failed: enter the request URL yourself.");
+      return;
+    }
+    const normalized = normalizeRequestPath(requestUrl, origin);
+    if (normalized.error) {
+      setMessage(`Challenge check failed: ${normalized.error}`);
+      return;
+    }
+    if (normalized.path !== currentPath) {
+      setGame((current) => ({ ...current, attempts: current.attempts + 1, streak: 0 }));
+      setMessage("Challenge check failed: the URL does not match this mission or contains the wrong saved ID.");
+      return;
+    }
     let parsedBody: unknown;
     if (needsBody) {
       try {
@@ -286,7 +366,7 @@ export default function ChallengeGame() {
       const headers: Record<string, string> = { Accept: "application/json" };
       if (needsBody) headers["Content-Type"] = "application/json";
       if (mission.id !== "token") headers.Authorization = `Bearer ${game.token}`;
-      const response = await fetch(currentPath, { method: mission.method, headers, body: needsBody ? JSON.stringify(parsedBody) : undefined });
+      const response = await fetch(normalized.path, { method: requestMethod, headers, body: needsBody ? JSON.stringify(parsedBody) : undefined });
       const data = response.status === 204 ? null : await response.json();
       const elapsed = Math.round(performance.now() - started);
       const statusPassed = response.status === mission.expected;
@@ -341,7 +421,7 @@ export default function ChallengeGame() {
     </header>
 
     <section className="game-hero">
-      <div><p>Banking API Quest</p><h1>Test APIs. Complete missions. <span>Become the champion.</span></h1><small>Every mission sends a real request to your live banking API. Edit the JSON, inspect the response, earn XP, and learn by doing.</small></div>
+      <div><p>Banking API Quest</p><h1>Build each request. Beat every mission. <span>Become the champion.</span></h1><small>Choose the correct HTTP method, enter the URL, write the JSON, and inspect the live response. Nothing is completed for you.</small></div>
       <div className="player-card"><div><span>Current rank</span><b>{rankFor(game.completed.length)}</b></div><div className="xp-ring" style={{ "--progress": `${progress * 3.6}deg` } as React.CSSProperties}><strong>{score}</strong><span>XP</span></div></div>
     </section>
 
@@ -360,16 +440,16 @@ export default function ChallengeGame() {
       })}</aside>
 
       <form className="mission-console" onSubmit={sendRequest}>
-        <div className="mission-title"><span className={`game-method ${mission.method.toLowerCase()}`}>{mission.method}</span><div><small>{mission.chapter}</small><h2>{mission.title}</h2><p>{mission.objective}</p></div><b>Expected {mission.expected}</b></div>
+        <div className="mission-title"><span className="game-method mystery">?</span><div><small>{mission.chapter}</small><h2>{mission.title}</h2><p>{mission.objective}</p></div><b>Expected {mission.expected}</b></div>
 
-        <label>Request URL <span>Real live endpoint</span></label>
-        <div className="game-url"><code>{fullUrl || currentPath}</code><button type="submit" disabled={loading || Boolean(prerequisite)}>{loading ? "Sending..." : "Send request"}</button></div>
+        <label>Build the request <span>Choose the method and enter the URL manually</span></label>
+        <div className="game-url manual-url"><select aria-label="HTTP method" value={requestMethod} onChange={(event) => setRequestMethod(event.target.value)}><option value="">METHOD</option><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select><input aria-label="Challenge request URL" value={requestUrl} onChange={(event) => setRequestUrl(event.target.value)} placeholder={`${origin || "https://your-domain"}/api/v1/...`} spellCheck={false} /><button type="submit" disabled={loading || Boolean(prerequisite)}>{loading ? "Sending..." : "Send request"}</button></div>
 
         <section className="game-headers"><header><b>Request headers</b><span>{mission.id === "token" ? "Authentication not required" : tokenActive ? "Bearer token attached" : "Token required"}</span></header><div><code>Accept</code><span>application/json</span></div>{needsBody && <div><code>Content-Type</code><span>application/json</span></div>}{mission.id !== "token" && <div><code>Authorization</code><span>{tokenActive ? `Bearer ${game.token.slice(0, 12)}...` : "Bearer <token>"}</span></div>}</section>
 
         <section className="game-inventory"><header><b>Saved mission data</b><span>Use these values when writing URLs or request bodies.</span></header><div><small>Customer ID</small><code>{game.customerId || "Not earned yet"}</code></div><div><small>Salary Account ID</small><code>{game.primaryAccountId || "Not earned yet"}</code></div><div><small>Goal Account ID</small><code>{game.secondaryAccountId || "Not earned yet"}</code></div></section>
 
-        {needsBody ? <section className="game-body"><header><b>Write the request body</b><div><button type="button" onClick={() => setShowHints((current) => !current)}>{showHints ? "Hide hints" : "Show field hints"}</button><button type="button" onClick={formatBody}>Format JSON</button><button type="button" onClick={clearBody}>Clear</button></div></header><div className="write-challenge"><b>Your challenge</b><span>Write valid JSON that satisfies the mission. The request is checked before XP is awarded.</span>{showHints && <ul>{mission.hints?.map((hint) => <li key={hint}><code>{hint}</code></li>)}</ul>}</div><textarea value={body} onChange={(event) => setBody(event.target.value)} aria-label="Challenge JSON request body" placeholder="Write your JSON request body here..." spellCheck={false} /></section> : <div className="game-no-body"><b>No request body required</b><span>This GET mission identifies the account through the URL.</span></div>}
+        {needsBody ? <section className="game-body"><header><b>Write the request body</b><div><button type="button" onClick={() => setShowHints((current) => !current)}>{showHints ? "Hide hints" : "Show challenge hints"}</button><button type="button" onClick={formatBody}>Format JSON</button><button type="button" onClick={clearBody}>Clear</button></div></header><div className="write-challenge"><b>Your challenge</b><span>Choose the method, enter the correct URL, and write valid JSON. All three are checked before XP is awarded.</span>{showHints && <ul><li><code>Method: {mission.method}</code></li><li><code>URL: {mission.path(game)}</code></li>{mission.hints?.map((hint) => <li key={hint}><code>{hint}</code></li>)}</ul>}</div><textarea value={body} onChange={(event) => setBody(event.target.value)} aria-label="Challenge JSON request body" placeholder="Write your JSON request body here..." spellCheck={false} /></section> : <div className="game-no-body"><b>No request body required</b><span>You must still choose the correct method and manually enter the endpoint URL.</span><button type="button" onClick={() => setShowHints((current) => !current)}>{showHints ? "Hide hints" : "Show method and URL hint"}</button>{showHints && <div><code>Method: {mission.method}</code><code>URL: {mission.path(game)}</code></div>}</div>}
 
         {prerequisite && <div className="game-prerequisite"><b>Mission requirement</b><span>{prerequisite}</span><button type="button" onClick={() => chooseMission(Math.max(0, nextMission))}>Go to required mission</button></div>}
       </form>
@@ -383,7 +463,7 @@ export default function ChallengeGame() {
     </section>
 
     <section className={`victory-panel ${game.completed.length === missions.length ? "unlocked" : ""}`}>
-      <div><span>★</span><div><p>Final achievement</p><h2>{game.completed.length === missions.length ? "Banking API Champion unlocked!" : "Complete all missions to unlock your badge"}</h2><small>{game.completed.length === missions.length ? "You generated authentication, created banking data, transferred funds, and verified the result through real API requests." : `${missions.length - game.completed.length} mission${missions.length - game.completed.length === 1 ? "" : "s"} remaining.`}</small></div></div><b>{score}/700 XP</b>
+      <div><span>★</span><div><p>Final achievement</p><h2>{game.completed.length === missions.length ? "Banking API Champion unlocked!" : "Complete all missions to unlock your badge"}</h2><small>{game.completed.length === missions.length ? "You built complete requests, generated authentication, transferred funds, and passed advanced negative-testing missions." : `${missions.length - game.completed.length} mission${missions.length - game.completed.length === 1 ? "" : "s"} remaining.`}</small></div></div><b>{score}/{missions.length * 100} XP</b>
     </section>
 
     <footer>Built by <b>Betappa Bharath</b> for hands-on API testing practice · <a href="/#playground">Return to free practice</a></footer>
