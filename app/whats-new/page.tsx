@@ -14,7 +14,7 @@ const releases = [
     summary: "Learn the complete banking workflow through seven real API missions with progress, XP, and instant validation.",
     changes: [
       ["Added", "A dedicated game page with seven selectable banking missions and 700 available XP."],
-      ["Added", "Real token generation, full request URLs, Bearer headers, editable JSON bodies, and live API responses."],
+      ["Added", "Write-your-own JSON challenges with optional field hints, request validation, full URLs, Bearer headers, and live API responses."],
       ["Added", "Automatic Customer ID and Account ID capture across customer, account, deposit, transfer, and verification missions."],
       ["Added", "Mission scoring, winning streaks, retry guidance, session restoration, rank progression, and a champion badge."],
       ["Improved", "The homepage now uses a compact challenge launcher so the main practice page remains easy to scan."],

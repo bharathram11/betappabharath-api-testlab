@@ -23,6 +23,7 @@ type Mission = {
   expected: number;
   path: (state: GameState) => string;
   body?: (state: GameState) => string;
+  hints?: string[];
 };
 
 const emptyGame: GameState = {
@@ -46,6 +47,7 @@ const missions: Mission[] = [
     expected: 201,
     path: () => "/api/v1/auth/token",
     body: () => JSON.stringify({ email: "learner@example.test", password: "practice-password", expires_in: 900 }, null, 2),
+    hints: ["email: learner@example.test", "password: practice-password", "expires_in: 900, 1800, 2700, or 3600"],
   },
   {
     id: "customer",
@@ -56,6 +58,7 @@ const missions: Mission[] = [
     expected: 201,
     path: () => "/api/v1/customers",
     body: () => JSON.stringify({ firstName: "Betappa", middleName: "", lastName: "Bharath", dateOfBirth: "2000-07-17", isMinorCustomer: false, gender: "M", birthCountry: "IN", nationality: "IN" }, null, 2),
+    hints: ["firstName: Betappa", "lastName: Bharath", "dateOfBirth: 2000-07-17", "isMinorCustomer: false", "gender: M", "birthCountry and nationality: IN"],
   },
   {
     id: "primary",
@@ -66,6 +69,7 @@ const missions: Mission[] = [
     expected: 201,
     path: (state) => `/api/v1/customers/${state.customerId || "{customerId}"}/accounts`,
     body: () => JSON.stringify({ accountType: "savings", nickname: "Salary Account", openingBalance: 0 }, null, 2),
+    hints: ["accountType: savings", "nickname: Salary Account", "openingBalance: 0"],
   },
   {
     id: "secondary",
@@ -76,6 +80,7 @@ const missions: Mission[] = [
     expected: 201,
     path: (state) => `/api/v1/customers/${state.customerId || "{customerId}"}/accounts`,
     body: () => JSON.stringify({ accountType: "savings", nickname: "Goal Account", openingBalance: 0 }, null, 2),
+    hints: ["accountType: savings", "nickname: Goal Account", "openingBalance: 0"],
   },
   {
     id: "deposit",
@@ -86,6 +91,7 @@ const missions: Mission[] = [
     expected: 201,
     path: (state) => `/api/v1/accounts/${state.primaryAccountId || "{accountId}"}/transactions`,
     body: () => JSON.stringify({ type: "credit", amount: 10000, reference: "Challenge salary credit" }, null, 2),
+    hints: ["type: credit", "amount: 10000", "reference: Challenge salary credit"],
   },
   {
     id: "transfer",
@@ -96,6 +102,7 @@ const missions: Mission[] = [
     expected: 201,
     path: () => "/api/v1/transfers",
     body: (state) => JSON.stringify({ fromAccountId: state.primaryAccountId || "{primaryAccountId}", toAccountId: state.secondaryAccountId || "{secondaryAccountId}", amount: 2000 }, null, 2),
+    hints: ["fromAccountId: use the saved Salary Account ID", "toAccountId: use the saved Goal Account ID", "amount: 2000"],
   },
   {
     id: "verify",
@@ -129,6 +136,24 @@ function missionResponseIsValid(id: MissionId, data: unknown) {
   return false;
 }
 
+function validateMissionRequest(id: MissionId, value: unknown, game: GameState) {
+  const body = responseObject(value);
+  if (id === "token") {
+    if (!body.email || !body.password) return "Include email and password.";
+    if (![900, 1800, 2700, 3600].includes(Number(body.expires_in))) return "expires_in must be 900, 1800, 2700, or 3600 seconds.";
+  }
+  if (id === "customer" && (body.firstName !== "Betappa" || body.lastName !== "Bharath" || !body.dateOfBirth || !body.gender)) return "Create Betappa Bharath and include dateOfBirth and gender.";
+  if (id === "primary" && (body.accountType !== "savings" || body.nickname !== "Salary Account" || Number(body.openingBalance) !== 0)) return "Create a savings account named Salary Account with openingBalance 0.";
+  if (id === "secondary" && (body.accountType !== "savings" || body.nickname !== "Goal Account" || Number(body.openingBalance) !== 0)) return "Create a savings account named Goal Account with openingBalance 0.";
+  if (id === "deposit" && (body.type !== "credit" || Number(body.amount) !== 10000)) return "Credit exactly 10000 to complete this mission.";
+  if (id === "transfer" && (body.fromAccountId !== game.primaryAccountId || body.toAccountId !== game.secondaryAccountId || Number(body.amount) !== 2000)) return "Use the saved account IDs and transfer exactly 2000.";
+  return "";
+}
+
+function emptyRequestBody(mission: Mission) {
+  return mission.body ? "{\n  \n}" : "";
+}
+
 function rankFor(completed: number) {
   if (completed === missions.length) return "Banking API Champion";
   if (completed >= 5) return "Automation Ace";
@@ -146,13 +171,14 @@ function remainingTime(milliseconds: number) {
 export default function ChallengeGame() {
   const [game, setGame] = useState<GameState>(emptyGame);
   const [selected, setSelected] = useState(0);
-  const [body, setBody] = useState(missions[0].body?.(emptyGame) ?? "");
+  const [body, setBody] = useState(emptyRequestBody(missions[0]));
   const [origin, setOrigin] = useState("");
   const [result, setResult] = useState<ApiResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("Start with Mission 01 to create your secure practice session.");
   const [now, setNow] = useState(0);
   const [ready, setReady] = useState(false);
+  const [showHints, setShowHints] = useState(false);
 
   const mission = missions[selected];
   const score = game.completed.length * 100;
@@ -184,7 +210,7 @@ export default function ChallengeGame() {
         const firstOpen = missions.findIndex((item) => !restored.completed.includes(item.id));
         const index = firstOpen < 0 ? missions.length - 1 : firstOpen;
         setSelected(index);
-        setBody(missions[index].body?.(restored) ?? "");
+        setBody(emptyRequestBody(missions[index]));
         setMessage(restored.completed.length === missions.length ? "Challenge completed. Your champion badge is ready." : "Your challenge session has been restored.");
       }
     } catch {
@@ -204,7 +230,8 @@ export default function ChallengeGame() {
 
   function chooseMission(index: number) {
     setSelected(index);
-    setBody(missions[index].body?.(game) ?? "");
+    setBody(emptyRequestBody(missions[index]));
+    setShowHints(false);
     setResult(null);
     setMessage(missions[index].objective);
   }
@@ -212,15 +239,16 @@ export default function ChallengeGame() {
   function resetGame() {
     setGame(emptyGame);
     setSelected(0);
-    setBody(missions[0].body?.(emptyGame) ?? "");
+    setBody(emptyRequestBody(missions[0]));
+    setShowHints(false);
     setResult(null);
     setMessage("New game created. Generate a token to begin.");
     sessionStorage.removeItem("bbl-challenge-game");
   }
 
-  function resetBody() {
-    setBody(mission.body?.(game) ?? "");
-    setMessage("Example request body restored.");
+  function clearBody() {
+    setBody(emptyRequestBody(mission));
+    setMessage("Request body cleared. Write the JSON needed for this mission.");
   }
 
   function formatBody() {
@@ -241,6 +269,12 @@ export default function ChallengeGame() {
         parsedBody = JSON.parse(body);
       } catch {
         setMessage("Mission not sent: correct the invalid JSON request body.");
+        return;
+      }
+      const missionError = validateMissionRequest(mission.id, parsedBody, game);
+      if (missionError) {
+        setGame((current) => ({ ...current, attempts: current.attempts + 1, streak: 0 }));
+        setMessage(`Challenge check failed: ${missionError}`);
         return;
       }
     }
@@ -333,7 +367,9 @@ export default function ChallengeGame() {
 
         <section className="game-headers"><header><b>Request headers</b><span>{mission.id === "token" ? "Authentication not required" : tokenActive ? "Bearer token attached" : "Token required"}</span></header><div><code>Accept</code><span>application/json</span></div>{needsBody && <div><code>Content-Type</code><span>application/json</span></div>}{mission.id !== "token" && <div><code>Authorization</code><span>{tokenActive ? `Bearer ${game.token.slice(0, 12)}...` : "Bearer <token>"}</span></div>}</section>
 
-        {needsBody ? <section className="game-body"><header><b>Request body</b><div><button type="button" onClick={formatBody}>Format JSON</button><button type="button" onClick={resetBody}>Reset example</button></div></header>{mission.id === "token" && <p><code>expires_in</code> uses seconds: 900, 1800, 2700, or 3600.</p>}<textarea value={body} onChange={(event) => setBody(event.target.value)} aria-label="Challenge JSON request body" spellCheck={false} /></section> : <div className="game-no-body"><b>No request body required</b><span>This GET mission identifies the account through the URL.</span></div>}
+        <section className="game-inventory"><header><b>Saved mission data</b><span>Use these values when writing URLs or request bodies.</span></header><div><small>Customer ID</small><code>{game.customerId || "Not earned yet"}</code></div><div><small>Salary Account ID</small><code>{game.primaryAccountId || "Not earned yet"}</code></div><div><small>Goal Account ID</small><code>{game.secondaryAccountId || "Not earned yet"}</code></div></section>
+
+        {needsBody ? <section className="game-body"><header><b>Write the request body</b><div><button type="button" onClick={() => setShowHints((current) => !current)}>{showHints ? "Hide hints" : "Show field hints"}</button><button type="button" onClick={formatBody}>Format JSON</button><button type="button" onClick={clearBody}>Clear</button></div></header><div className="write-challenge"><b>Your challenge</b><span>Write valid JSON that satisfies the mission. The request is checked before XP is awarded.</span>{showHints && <ul>{mission.hints?.map((hint) => <li key={hint}><code>{hint}</code></li>)}</ul>}</div><textarea value={body} onChange={(event) => setBody(event.target.value)} aria-label="Challenge JSON request body" placeholder="Write your JSON request body here..." spellCheck={false} /></section> : <div className="game-no-body"><b>No request body required</b><span>This GET mission identifies the account through the URL.</span></div>}
 
         {prerequisite && <div className="game-prerequisite"><b>Mission requirement</b><span>{prerequisite}</span><button type="button" onClick={() => chooseMission(Math.max(0, nextMission))}>Go to required mission</button></div>}
       </form>
