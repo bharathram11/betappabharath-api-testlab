@@ -473,7 +473,7 @@ export default function ChallengeGame() {
   return <main className="challenge-game-page">
     <header className="game-nav">
       <a className="game-brand" href="/"><span>B</span><strong>BetappaBharath <em>API TestLab</em></strong></a>
-      <nav><a href="/#playground">Free Practice</a><a href="/swagger">Swagger</a><a href="/guide">User Guide</a></nav>
+      <nav><a href="#how-to-play">How to play</a><a href="/#playground">Free Practice</a><a href="/swagger">Swagger</a><a href="/guide">User Guide</a></nav>
     </header>
 
     <section className="game-hero">
@@ -488,6 +488,20 @@ export default function ChallengeGame() {
       <div><span>Session token</span><b className={tokenActive ? "game-ready" : "game-waiting"}>{tokenActive ? remainingTime(game.expiresAt - now) : "Not active"}</b></div>
       <button type="button" onClick={resetGame}>New game</button>
     </section>
+
+    <details className="game-how-to" id="how-to-play">
+      <summary><span>?</span><div><b>New here? Learn how to play</b><small>A quick walkthrough of the rules, requests, hints, and scoring</small></div><i>Open guide</i></summary>
+      <div className="how-to-content">
+        <ol>
+          <li><span>1</span><div><b>Choose a mission</b><p>Start with authentication. Later missions use the customer and account IDs you earn.</p></div></li>
+          <li><span>2</span><div><b>Build the complete request</b><p>Select the HTTP method, type the endpoint URL, and write the JSON body yourself.</p></div></li>
+          <li><span>3</span><div><b>Use help when needed</b><p>Open the challenge hints or Swagger reference. Your unfinished request is saved automatically.</p></div></li>
+          <li><span>4</span><div><b>Send and inspect</b><p>Compare the actual status and response with the expected result. Fix the request and retry if it fails.</p></div></li>
+          <li><span>5</span><div><b>Earn XP and unlock levels</b><p>Every correctly completed mission awards 100 XP. Finish all 10 missions to become Banking API Champion.</p></div></li>
+        </ol>
+        <aside><b>Game rules</b><ul><li>Hints explain the target but never fill your request.</li><li>Method, URL, body, status code, and response data are validated.</li><li>Each mission keeps its own draft in this browser tab.</li><li>Only <strong>New game</strong> clears your progress and drafts.</li></ul></aside>
+      </div>
+    </details>
 
     <section className="game-workspace">
       <aside className="mission-map"><div><p>Mission map</p><h2>Your banking journey</h2></div>{missions.map((item, index) => {
