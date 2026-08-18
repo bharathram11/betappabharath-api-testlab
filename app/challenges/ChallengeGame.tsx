@@ -201,6 +201,34 @@ function emptyRequestBody(mission: Mission) {
   return mission.body ? "{\n  \n}" : "";
 }
 
+type MissionDraft = {
+  method: string;
+  url: string;
+  body: string;
+  showHints: boolean;
+};
+
+type ChallengeWorkspace = {
+  selected: number;
+  drafts: Record<string, MissionDraft>;
+};
+
+const workspaceStorageKey = "bbl-challenge-workspace-v1";
+
+function emptyMissionDraft(mission: Mission): MissionDraft {
+  return { method: "", url: "", body: emptyRequestBody(mission), showHints: false };
+}
+
+function readChallengeWorkspace(): ChallengeWorkspace {
+  try {
+    const saved = sessionStorage.getItem(workspaceStorageKey);
+    if (saved) return { selected: 0, drafts: {}, ...JSON.parse(saved) };
+  } catch {
+    sessionStorage.removeItem(workspaceStorageKey);
+  }
+  return { selected: 0, drafts: {} };
+}
+
 function rankFor(completed: number) {
   if (completed === missions.length) return "Banking API Champion";
   if (completed >= 8) return "Automation Ace";
@@ -255,14 +283,28 @@ export default function ChallengeGame() {
       sessionStorage.removeItem("bbl-challenge-game");
       sessionStorage.removeItem("bbl-challenge-game-v3");
       const saved = sessionStorage.getItem("bbl-challenge-game-v4");
+      const workspace = readChallengeWorkspace();
       if (saved) {
         const restored = { ...emptyGame, ...JSON.parse(saved) } as GameState;
         setGame(restored);
         const firstOpen = missions.findIndex((item) => !restored.completed.includes(item.id));
-        const index = firstOpen < 0 ? missions.length - 1 : firstOpen;
+        const fallbackIndex = firstOpen < 0 ? missions.length - 1 : firstOpen;
+        const index = Number.isInteger(workspace.selected) && workspace.selected >= 0 && workspace.selected < missions.length ? workspace.selected : fallbackIndex;
+        const draft = workspace.drafts[missions[index].id] ?? emptyMissionDraft(missions[index]);
         setSelected(index);
-        setBody(emptyRequestBody(missions[index]));
+        setBody(draft.body);
+        setRequestMethod(draft.method);
+        setRequestUrl(draft.url);
+        setShowHints(draft.showHints);
         setMessage(restored.completed.length === missions.length ? "Challenge completed. Your champion badge is ready." : "Your challenge session has been restored.");
+      } else {
+        const index = Number.isInteger(workspace.selected) && workspace.selected >= 0 && workspace.selected < missions.length ? workspace.selected : 0;
+        const draft = workspace.drafts[missions[index].id] ?? emptyMissionDraft(missions[index]);
+        setSelected(index);
+        setBody(draft.body);
+        setRequestMethod(draft.method);
+        setRequestUrl(draft.url);
+        setShowHints(draft.showHints);
       }
     } catch {
       sessionStorage.removeItem("bbl-challenge-game-v4");
@@ -279,12 +321,25 @@ export default function ChallengeGame() {
     if (ready) sessionStorage.setItem("bbl-challenge-game-v4", JSON.stringify(game));
   }, [game, ready]);
 
+  useEffect(() => {
+    if (!ready) return;
+    const workspace = readChallengeWorkspace();
+    workspace.selected = selected;
+    workspace.drafts[mission.id] = { method: requestMethod, url: requestUrl, body, showHints };
+    sessionStorage.setItem(workspaceStorageKey, JSON.stringify(workspace));
+  }, [body, mission.id, ready, requestMethod, requestUrl, selected, showHints]);
+
   function chooseMission(index: number) {
+    const workspace = readChallengeWorkspace();
+    workspace.drafts[mission.id] = { method: requestMethod, url: requestUrl, body, showHints };
+    workspace.selected = index;
+    sessionStorage.setItem(workspaceStorageKey, JSON.stringify(workspace));
+    const draft = workspace.drafts[missions[index].id] ?? emptyMissionDraft(missions[index]);
     setSelected(index);
-    setBody(emptyRequestBody(missions[index]));
-    setShowHints(false);
-    setRequestMethod("");
-    setRequestUrl("");
+    setBody(draft.body);
+    setShowHints(draft.showHints);
+    setRequestMethod(draft.method);
+    setRequestUrl(draft.url);
     setResult(null);
     setMessage(missions[index].objective);
   }
@@ -301,6 +356,7 @@ export default function ChallengeGame() {
     sessionStorage.removeItem("bbl-challenge-game");
     sessionStorage.removeItem("bbl-challenge-game-v3");
     sessionStorage.removeItem("bbl-challenge-game-v4");
+    sessionStorage.removeItem(workspaceStorageKey);
   }
 
   function clearBody() {
@@ -442,7 +498,7 @@ export default function ChallengeGame() {
       <form className="mission-console" onSubmit={sendRequest}>
         <div className="mission-title"><span className="game-method mystery">?</span><div><small>{mission.chapter}</small><h2>{mission.title}</h2><p>{mission.objective}</p></div><b>Expected {mission.expected}</b></div>
 
-        <label>Build the request <span>Choose the method and enter the URL manually</span></label>
+        <label>Build the request <span>Draft saved automatically in this browser tab</span></label>
         <div className="game-url manual-url"><select aria-label="HTTP method" value={requestMethod} onChange={(event) => setRequestMethod(event.target.value)}><option value="">METHOD</option><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option></select><input aria-label="Challenge request URL" value={requestUrl} onChange={(event) => setRequestUrl(event.target.value)} placeholder={`${origin || "https://your-domain"}/api/v1/...`} spellCheck={false} /><button type="submit" disabled={loading || Boolean(prerequisite)}>{loading ? "Sending..." : "Send request"}</button></div>
 
         <section className="game-headers"><header><b>Request headers</b><span>{mission.id === "token" ? "Authentication not required" : tokenActive ? "Bearer token attached" : "Token required"}</span></header><div><code>Accept</code><span>application/json</span></div>{needsBody && <div><code>Content-Type</code><span>application/json</span></div>}{mission.id !== "token" && <div><code>Authorization</code><span>{tokenActive ? `Bearer ${game.token.slice(0, 12)}...` : "Bearer <token>"}</span></div>}</section>
