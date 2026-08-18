@@ -5,5 +5,6 @@ export default function QuickNavigation() {
     <a href="#playground"><b>2</b> Practice</a>
     <a href="#automation"><b>3</b> Automate</a>
     <a href="#assertions"><b>4</b> Results</a>
+    <a href="/challenges"><b>★</b> Challenges</a>
   </nav>;
 }

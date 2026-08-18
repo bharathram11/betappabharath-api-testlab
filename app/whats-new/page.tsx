@@ -8,6 +8,19 @@ export const metadata: Metadata = {
 
 const releases = [
   {
+    date: "18 August 2026",
+    version: "Game mode",
+    title: "Banking API Quest",
+    summary: "Learn the complete banking workflow through seven real API missions with progress, XP, and instant validation.",
+    changes: [
+      ["Added", "A dedicated game page with seven selectable banking missions and 700 available XP."],
+      ["Added", "Real token generation, full request URLs, Bearer headers, editable JSON bodies, and live API responses."],
+      ["Added", "Automatic Customer ID and Account ID capture across customer, account, deposit, transfer, and verification missions."],
+      ["Added", "Mission scoring, winning streaks, retry guidance, session restoration, rank progression, and a champion badge."],
+      ["Improved", "The homepage now uses a compact challenge launcher so the main practice page remains easy to scan."],
+    ],
+  },
+  {
     date: "17 August 2026",
     version: "New feature",
     title: "Rest Assured and Playwright code generator",
@@ -66,12 +79,12 @@ export default function WhatsNewPage() {
   return <main className="updates-page">
     <header className="updates-nav">
       <Link href="/"><span>B</span><strong>BetappaBharath <em>API TestLab</em></strong></Link>
-      <nav><Link href="/guide">User Guide</Link><Link href="/swagger">Swagger</Link><a className="updates-primary" href="/#playground">Open Practice Lab</a></nav>
+      <nav><Link href="/guide">User Guide</Link><Link href="/swagger">Swagger</Link><Link href="/challenges">Challenges</Link><a className="updates-primary" href="/#playground">Open Practice Lab</a></nav>
     </header>
 
     <section className="updates-hero">
       <div><p>Product updates</p><h1>What&apos;s new in the TestLab?</h1><span>Follow newly added features, improvements, and fixes. The newest update always appears first.</span></div>
-      <aside><b>Latest</b><strong>Automation code generator</strong><span>Updated 17 August 2026</span></aside>
+      <aside><b>Latest</b><strong>Banking API Quest</strong><span>Updated 18 August 2026</span></aside>
     </section>
 
     <section className="updates-content">

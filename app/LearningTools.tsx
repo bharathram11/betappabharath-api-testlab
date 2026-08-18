@@ -65,20 +65,10 @@ export function NegativeTestingLab({ running, onRun }: { running: string; onRun:
   </section>;
 }
 
-const challenges = [
-  ["customer", "Create a customer", "Receive and save a Customer ID."],
-  ["accounts", "Open two accounts", "Create two accounts for the same customer."],
-  ["transfer", "Complete a transfer", "Move money between your two accounts."],
-  ["assertion", "Pass all assertions", "Match status, speed, and a JSON field."],
-  ["negative", "Verify an error", "Produce any expected 4xx response."],
-];
-
-export function ChallengeBoard({ completed, onReset }: { completed: string[]; onReset: () => void }) {
-  const percent = Math.round(completed.length / challenges.length * 100);
-  return <section className="challenge-board">
-    <div className="tool-heading"><div><p className="eyebrow">Practice challenges</p><h2>Turn requests into testing skills</h2><p>Your completed challenges are saved in this browser.</p></div><button type="button" className="light-button" onClick={onReset}>Reset progress</button></div>
-    <div className="challenge-progress"><div><span style={{ width: `${percent}%` }} /></div><b>{completed.length}/{challenges.length} complete</b></div>
-    <div className="challenge-cards">{challenges.map(([id, title, copy], index) => { const done = completed.includes(id); return <article className={done ? "complete" : ""} key={id}><span>{done ? "✓" : index + 1}</span><div><h3>{title}</h3><p>{copy}</p></div><b>{done ? "Completed" : "Not started"}</b></article>; })}</div>
+export function ChallengeBoard() {
+  return <section className="challenge-board challenge-launcher">
+    <div><p className="eyebrow">New game mode</p><h2>Enter the Banking API Quest</h2><p>Complete seven real API missions: generate a token, onboard a customer, create two accounts, deposit funds, transfer money, and verify the final balance.</p><div className="challenge-features"><span>7 missions</span><span>700 XP</span><span>Live API responses</span><span>Champion badge</span></div></div>
+    <div className="challenge-launch-card"><span>★</span><b>Ready, tester?</b><p>Your game opens on a separate page, so the free-practice workspace stays focused.</p><a href="/challenges">Start the challenge →</a></div>
   </section>;
 }
 

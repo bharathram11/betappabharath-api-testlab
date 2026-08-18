@@ -123,14 +123,12 @@ export default function ApiLabClient() {
   const [inspector, setInspector] = useState<InspectorData | null>(null);
   const [negativeRunning, setNegativeRunning] = useState("");
   const [dataAction, setDataAction] = useState("");
-  const [completedChallenges, setCompletedChallenges] = useState<string[]>([]);
 
   useEffect(() => {
     const origin = window.location.origin;
     setBaseUrl(origin);
     setPath((current) => current.replace("http://localhost:3000", origin));
     setMode(localStorage.getItem("bbl-mode") === "free" ? "free" : "beginner");
-    try { setCompletedChallenges(JSON.parse(localStorage.getItem("bbl-challenges") ?? "[]")); } catch { setCompletedChallenges([]); }
   }, []);
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000);
@@ -149,18 +147,6 @@ export default function ApiLabClient() {
     { label: "Response time is below 1000 ms", pass: result.elapsed < 1000 },
     ...(expectedField.trim() ? [{ label: `JSON contains ${expectedField}`, pass: hasJsonPath(result.data, expectedField) }] : []),
   ] : [];
-
-  useEffect(() => {
-    const newlyCompleted = [
-      ...(ids.customerId ? ["customer"] : []),
-      ...(ids.primaryAccountId && ids.secondaryAccountId ? ["accounts"] : []),
-      ...(history.some((item) => item.label === "Transfer money" && item.status === 201) ? ["transfer"] : []),
-      ...(result && assertionResults.length > 0 && assertionResults.every((item) => item.pass) ? ["assertion"] : []),
-      ...(history.some((item) => item.status >= 400 && item.status < 500) ? ["negative"] : []),
-    ];
-    if (!newlyCompleted.some((id) => !completedChallenges.includes(id))) return;
-    setCompletedChallenges((current) => { const next = Array.from(new Set([...current, ...newlyCompleted])); localStorage.setItem("bbl-challenges", JSON.stringify(next)); return next; });
-  }, [ids, history, result]);
 
   function changeMode(next: Mode) { setMode(next); localStorage.setItem("bbl-mode", next); }
 
@@ -328,7 +314,7 @@ export default function ApiLabClient() {
     <PracticeDataControls busy={dataAction} onLoad={() => managePracticeData("load-sample")} onReset={() => managePracticeData("reset")} />
     <NegativeTestingLab running={negativeRunning} onRun={runNegativeTest} />
     <RequestInspector data={inspector} onCopyCurl={copyCurl} copied={copied === "cURL copied"} />
-    <ChallengeBoard completed={completedChallenges} onReset={() => { setCompletedChallenges([]); localStorage.removeItem("bbl-challenges"); }} />
+    <ChallengeBoard />
     <PostmanGuide />
     <AutomationCodeGenerator data={inspector} requestName={scenario.label} expectedStatus={Number(expectedStatus)} expectedField={expectedField} />
     <section id="assertions" className="assertion-lab"><div className="section-heading"><p className="eyebrow">Assertion practice</p><h2>Check the API response automatically</h2><p>An assertion asks: “Did the API return what I expected?” Send a request below, then return here to see PASS or FAIL.</p></div><div className="assertion-workspace"><div className="assertion-inputs"><label>Expected status code<span>Example: 200 or 201</span><input type="number" value={expectedStatus} onChange={(e) => setExpectedStatus(e.target.value)} /></label><label>Expected JSON field<span>Use dots for nested fields</span><input value={expectedField} onChange={(e) => setExpectedField(e.target.value)} placeholder="Example: data.id" /></label></div><div className="assertion-results">{result ? assertionResults.map((item) => <div className={item.pass ? "assert-pass" : "assert-fail"} key={item.label}><span>{item.pass ? "PASS" : "FAIL"}</span><p>{item.label}</p></div>) : <div className="assertion-empty"><b>No response yet</b><p>Send a request in the playground to run the assertions.</p></div>}</div><div className="assertion-help"><b>Examples</b><p><code>data.id</code> checks for a created ID. <code>data</code> checks that response data exists. Response time is automatically checked against 1000 ms.</p></div></div></section>

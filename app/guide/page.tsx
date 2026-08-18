@@ -8,7 +8,7 @@ const features = [
   ["Automation code generator", "Turn a sent request into Rest Assured Java or Playwright TypeScript with assertions."],
   ["Assertions", "Check status codes, JSON paths, and response time automatically."],
   ["Negative testing", "Practise expected 400, 401, 404, 409, and 422 errors."],
-  ["Challenges", "Complete practical tasks and save progress in the browser."],
+  ["Banking API Quest", "Play seven real API missions with token generation, live requests, XP, progress, and a champion badge."],
   ["Session dashboard", "See request history, token status, and generated IDs."],
   ["Swagger reference", "Explore documented endpoints and use Try it out."],
   ["Postman collection", "Download organized requests with variables and automatic scripts."],
@@ -18,7 +18,7 @@ const statuses = [["200","OK"],["201","Created"],["204","No Content"],["400","Ba
 
 export default function GuidePage() {
   return <main className="guide-page">
-    <header className="guide-nav"><Link href="/"><span>B</span><strong>BetappaBharath <em>API TestLab</em></strong></Link><nav><a href="#start">Quick start</a><a href="#features">Features</a><a href="#postman">Postman</a><Link href="/swagger">Swagger</Link><a className="guide-primary" href="/#playground">Open practice lab</a></nav></header>
+    <header className="guide-nav"><Link href="/"><span>B</span><strong>BetappaBharath <em>API TestLab</em></strong></Link><nav><a href="#start">Quick start</a><Link href="/challenges">Challenges</Link><a href="#postman">Postman</a><Link href="/swagger">Swagger</Link><a className="guide-primary" href="/#playground">Open practice lab</a></nav></header>
     <section className="guide-hero"><div><p className="guide-kicker">User guide · Banking API TestLab</p><h1>Everything you need to start testing APIs.</h1><p>Learn what the TestLab contains, how banking data connects, and how to test requests from the website or Postman.</p><div><a href="#start">Start with the basics</a><a href="/#playground">Go to practice</a></div></div><aside><b>Recommended first session</b><ol><li>Create a token</li><li>Load the sample bank</li><li>List all customers</li><li>Get one account</li><li>Try a negative test</li><li>Run assertions</li></ol></aside></section>
     <div className="guide-layout"><aside className="guide-toc"><b>On this page</b><a href="#overview">Overview</a><a href="#start">Quick start</a><a href="#flow">Banking flow</a><a href="#features">Features</a><a href="#methods">HTTP methods</a><a href="#assertions">Assertions</a><a href="#negative">Negative testing</a><a href="#postman">Postman</a><a href="#status">Status codes</a><a href="#troubleshooting">Troubleshooting</a></aside>
       <article className="guide-content">
