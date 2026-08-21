@@ -8,6 +8,18 @@ export const metadata: Metadata = {
 
 const releases = [
   {
+    date: "21 August 2026",
+    version: "Advanced testing",
+    title: "Real-world HTTP error practice",
+    summary: "Practise permissions, unsupported methods and media types, rate limiting, and temporary service failures.",
+    changes: [
+      ["Added", "Interactive 403 Forbidden, 405 Method Not Allowed, 415 Unsupported Media Type, 429 Too Many Requests, and 503 Service Unavailable tests."],
+      ["Added", "Realistic Allow, Retry-After, and X-RateLimit response headers visible in the Request Inspector."],
+      ["Improved", "The status-code reference and user guide now explain thirteen important success and error responses."],
+      ["Improved", "Advanced cases are collapsible so the main learning page stays compact."],
+    ],
+  },
+  {
     date: "18 August 2026",
     version: "Game mode",
     title: "Banking API Quest",
@@ -85,7 +97,7 @@ export default function WhatsNewPage() {
 
     <section className="updates-hero">
       <div><p>Product updates</p><h1>What&apos;s new in the TestLab?</h1><span>Follow newly added features, improvements, and fixes. The newest update always appears first.</span></div>
-      <aside><b>Latest</b><strong>Banking API Quest</strong><span>Updated 18 August 2026</span></aside>
+      <aside><b>Latest</b><strong>Advanced HTTP Error Lab</strong><span>Updated 21 August 2026</span></aside>
     </section>
 
     <section className="updates-content">

@@ -91,6 +91,36 @@
         { "name": "Transfer money", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"fromAccountId\": \"{{primaryAccountId}}\",\n  \"toAccountId\": \"{{secondaryAccountId}}\",\n  \"amount\": 1500\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/transfers" } },
         { "name": "View transactions", "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/accounts/{{primaryAccountId}}/transactions" } }
       ]
+    },
+    {
+      "name": "05 - Advanced HTTP errors",
+      "item": [
+        {
+          "name": "403 - Forbidden scope",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 403', () => pm.response.to.have.status(403));", "pm.test('Required scope is explained', () => pm.expect(pm.response.json().required_scope).to.eql('admin:write'));"] } }],
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/status/403", "description": "Uses a valid Bearer token that lacks the admin:write permission." }
+        },
+        {
+          "name": "405 - Method not allowed",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 405', () => pm.response.to.have.status(405));", "pm.test('Allow header is returned', () => pm.expect(pm.response.headers.get('Allow')).to.eql('GET, POST'));"] } }],
+          "request": { "method": "PUT", "url": "{{baseUrl}}/api/v1/status/405", "description": "Sends an unsupported HTTP method and returns an Allow response header." }
+        },
+        {
+          "name": "415 - Unsupported media type",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 415', () => pm.response.to.have.status(415));", "pm.test('Accepted media type is explained', () => pm.expect(pm.response.json().accepted).to.include('application/json'));"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "text/plain" }], "body": { "mode": "raw", "raw": "firstName=Betappa" }, "url": "{{baseUrl}}/api/v1/status/415", "description": "Sends text/plain to an endpoint that accepts application/json." }
+        },
+        {
+          "name": "429 - Too many requests",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 429', () => pm.response.to.have.status(429));", "pm.test('Retry and limit headers are returned', () => { pm.expect(pm.response.headers.get('Retry-After')).to.eql('30'); pm.expect(pm.response.headers.get('X-RateLimit-Remaining')).to.eql('0'); });"] } }],
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/status/429", "description": "Simulates a rate-limited request and returns Retry-After and X-RateLimit headers." }
+        },
+        {
+          "name": "503 - Service unavailable",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 503', () => pm.response.to.have.status(503));", "pm.test('Retry-After is returned', () => pm.expect(pm.response.headers.get('Retry-After')).to.eql('60'));"] } }],
+          "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/status/503", "description": "Simulates temporary banking-service maintenance and advises the client when to retry." }
+        }
+      ]
     }
   ]
 }
