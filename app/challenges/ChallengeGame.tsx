@@ -256,6 +256,7 @@ export default function ChallengeGame() {
   const [showHints, setShowHints] = useState(false);
   const [requestMethod, setRequestMethod] = useState("");
   const [requestUrl, setRequestUrl] = useState("");
+  const [achievementCopied, setAchievementCopied] = useState(false);
 
   const mission = missions[selected];
   const score = game.completed.length * 100;
@@ -265,6 +266,8 @@ export default function ChallengeGame() {
   const needsBody = Boolean(mission.body);
   const isComplete = game.completed.includes(mission.id);
   const nextMission = missions.findIndex((item) => !game.completed.includes(item.id));
+  const gameComplete = game.completed.length === missions.length;
+  const practisedStatuses = Array.from(new Set(missions.filter((item) => game.completed.includes(item.id)).map((item) => item.expected)));
 
   const prerequisite = useMemo(() => {
     if (mission.id === "token") return "";
@@ -470,6 +473,22 @@ export default function ChallengeGame() {
     chooseMission(next < 0 ? missions.length - 1 : next);
   }
 
+  async function copyAchievement() {
+    const text = `I completed the Banking API Quest in BetappaBharath API TestLab!\n\nScore: ${score}/${missions.length * 100} XP\nMissions: ${game.completed.length}/${missions.length}\nStatus codes practised: ${practisedStatuses.join(", ")}\n\nTry it: ${window.location.origin}/challenges`;
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const field = document.createElement("textarea");
+      field.value = text;
+      document.body.appendChild(field);
+      field.select();
+      document.execCommand("copy");
+      field.remove();
+    }
+    setAchievementCopied(true);
+    window.setTimeout(() => setAchievementCopied(false), 2200);
+  }
+
   return <main className="challenge-game-page">
     <header className="game-nav">
       <a className="game-brand" href="/"><span>B</span><strong>BetappaBharath <em>API TestLab</em></strong></a>
@@ -532,8 +551,9 @@ export default function ChallengeGame() {
       </aside>
     </section>
 
-    <section className={`victory-panel ${game.completed.length === missions.length ? "unlocked" : ""}`}>
-      <div><span>★</span><div><p>Final achievement</p><h2>{game.completed.length === missions.length ? "Banking API Champion unlocked!" : "Complete all missions to unlock your badge"}</h2><small>{game.completed.length === missions.length ? "You built complete requests, generated authentication, transferred funds, and passed advanced negative-testing missions." : `${missions.length - game.completed.length} mission${missions.length - game.completed.length === 1 ? "" : "s"} remaining.`}</small></div></div><b>{score}/{missions.length * 100} XP</b>
+    <section className={`victory-panel ${gameComplete ? "unlocked" : ""}`}>
+      <div className="victory-main"><span>★</span><div><p>Final achievement</p><h2>{gameComplete ? "Banking API Champion unlocked!" : "Complete all missions to unlock your badge"}</h2><small>{gameComplete ? "You built complete requests, generated authentication, transferred funds, and passed advanced negative-testing missions." : `${missions.length - game.completed.length} mission${missions.length - game.completed.length === 1 ? "" : "s"} remaining.`}</small></div></div><div className="victory-score"><b>{score}/{missions.length * 100} XP</b>{gameComplete && <button type="button" onClick={copyAchievement}>{achievementCopied ? "Achievement copied!" : "Copy achievement"}</button>}</div>
+      {gameComplete && <div className="achievement-summary"><article><span>Missions</span><b>{game.completed.length}/{missions.length}</b></article><article><span>Attempts</span><b>{game.attempts}</b></article><article><span>Final rank</span><b>{rankFor(game.completed.length)}</b></article><article><span>Status codes practised</span><b>{practisedStatuses.join(" · ")}</b></article><p>Share your result with your learning community or save it for your portfolio.</p></div>}
     </section>
 
     <footer>Built by <b>Betappa Bharath</b> for hands-on API testing practice · <a href="/#playground">Return to free practice</a></footer>

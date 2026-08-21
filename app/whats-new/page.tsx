@@ -9,6 +9,18 @@ export const metadata: Metadata = {
 const releases = [
   {
     date: "21 August 2026",
+    version: "Usability update",
+    title: "Faster practice and shareable achievements",
+    summary: "Find requests faster, understand responses clearly, and share a completed Banking API Quest.",
+    changes: [
+      ["Added", "Operation search by HTTP method, resource, endpoint, or action."],
+      ["Added", "Copy JSON, download response, and clear-response actions in the response panel."],
+      ["Added", "Plain-language explanations for important success and error status codes."],
+      ["Added", "A challenge completion summary with missions, attempts, rank, status codes, and a copyable achievement message."],
+    ],
+  },
+  {
+    date: "21 August 2026",
     version: "Advanced testing",
     title: "Real-world HTTP error practice",
     summary: "Practise permissions, unsupported methods and media types, rate limiting, and temporary service failures.",
@@ -97,7 +109,7 @@ export default function WhatsNewPage() {
 
     <section className="updates-hero">
       <div><p>Product updates</p><h1>What&apos;s new in the TestLab?</h1><span>Follow newly added features, improvements, and fixes. The newest update always appears first.</span></div>
-      <aside><b>Latest</b><strong>Advanced HTTP Error Lab</strong><span>Updated 21 August 2026</span></aside>
+      <aside><b>Latest</b><strong>Faster practice and shareable achievements</strong><span>Updated 21 August 2026</span></aside>
     </section>
 
     <section className="updates-content">
