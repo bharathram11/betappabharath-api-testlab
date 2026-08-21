@@ -9,6 +9,18 @@ export const metadata: Metadata = {
 const releases = [
   {
     date: "21 August 2026",
+    version: "Automation update",
+    title: "Request and response POJO generator",
+    summary: "Convert the JSON you tested into reusable Java model classes for Rest Assured projects.",
+    changes: [
+      ["Added", "Request POJO and response POJO generation from the current API request and live response."],
+      ["Added", "Plain Java getters/setters and optional Lombok model styles."],
+      ["Added", "Nested JSON model generation, safe Jackson mapping for snake_case fields, and Java type inference."],
+      ["Added", "Copy and download controls for every generated Java file."],
+    ],
+  },
+  {
+    date: "21 August 2026",
     version: "Usability update",
     title: "Faster practice and shareable achievements",
     summary: "Find requests faster, understand responses clearly, and share a completed Banking API Quest.",
@@ -109,7 +121,7 @@ export default function WhatsNewPage() {
 
     <section className="updates-hero">
       <div><p>Product updates</p><h1>What&apos;s new in the TestLab?</h1><span>Follow newly added features, improvements, and fixes. The newest update always appears first.</span></div>
-      <aside><b>Latest</b><strong>Faster practice and shareable achievements</strong><span>Updated 21 August 2026</span></aside>
+      <aside><b>Latest</b><strong>Request and response POJO generator</strong><span>Updated 21 August 2026</span></aside>
     </section>
 
     <section className="updates-content">
