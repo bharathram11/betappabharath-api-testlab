@@ -5,7 +5,7 @@ const features = [
   ["Sample bank and reset", "Load a ready customer with two accounts or clear all temporary records."],
   ["Searchable request playground", "Find an operation by method, resource, or action, then edit its complete URL, headers, token, and JSON body."],
   ["Request Inspector", "Review the exact request and response headers, then copy it as cURL."],
-  ["Automation and POJO generator", "Turn a sent request into Rest Assured Java or Playwright TypeScript, plus plain-Java or Lombok request and response POJOs."],
+  ["Automation code generator", "Turn a sent request into Rest Assured Java or Playwright TypeScript with assertions."],
   ["Response learning tools", "Copy or download response JSON, clear the panel, and read a plain-language explanation of every result."],
   ["Assertions", "Check status codes, JSON paths, and response time automatically."],
   ["Negative testing", "Practise beginner and advanced errors including 403, 405, 415, 429, and 503."],
