@@ -4,6 +4,15 @@ A clean full-stack starter running on
 [vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
 Drizzle support.
 
+# BetappaBharath Banking API TestLab
+
+## 🚀 Live Application
+
+[Open Banking API TestLab](https://betappabharath-api-testlab.bharathbetappa.workers.dev/)
+
+## 📚 Project Overview
+
+A hands-on banking API testing platform...
 ## Prerequisites
 
 - Node.js `>=22.13.0`
