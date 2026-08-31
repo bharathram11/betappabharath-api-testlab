@@ -8,6 +8,19 @@ export const metadata: Metadata = {
 
 const releases = [
   {
+    date: "31 August 2026",
+    version: "SDET learning update",
+    title: "Failure simulation, data-driven tests, and career preparation",
+    summary: "Move beyond individual requests with controlled defects, reusable datasets, interview practice, and a recruiter-ready project tour.",
+    changes: [
+      ["Added", "A safe API defect simulator covering latency, timeout, 500, 429, expired tokens, malformed JSON, missing fields, flaky services, and duplicate requests."],
+      ["Added", "CSV and JSON data-driven customer testing with expected-versus-actual validation and downloadable execution reports."],
+      ["Added", "An API and SDET interview-preparation center with filters, mock questions, answer checklists, and project-specific guidance."],
+      ["Added", "A captioned, self-running two-minute project walkthrough for recruiters, educators, and new learners."],
+      ["Improved", "Advanced capabilities use dedicated pages so the primary practice experience remains compact."],
+    ],
+  },
+  {
     date: "21 August 2026",
     version: "Usability update",
     title: "Faster practice and shareable achievements",
@@ -109,7 +122,7 @@ export default function WhatsNewPage() {
 
     <section className="updates-hero">
       <div><p>Product updates</p><h1>What&apos;s new in the TestLab?</h1><span>Follow newly added features, improvements, and fixes. The newest update always appears first.</span></div>
-      <aside><b>Latest</b><strong>Faster practice and shareable achievements</strong><span>Updated 21 August 2026</span></aside>
+      <aside><b>Latest</b><strong>SDET learning and career tools</strong><span>Updated 31 August 2026</span></aside>
     </section>
 
     <section className="updates-content">

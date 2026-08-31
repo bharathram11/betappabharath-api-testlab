@@ -121,6 +121,26 @@
           "request": { "method": "GET", "url": "{{baseUrl}}/api/v1/status/503", "description": "Simulates temporary banking-service maintenance and advises the client when to retry." }
         }
       ]
+    },
+    {
+      "name": "06 - API defect simulator",
+      "item": [
+        {
+          "name": "Healthy baseline",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 200', () => pm.response.to.have.status(200));", "pm.test('Completed status is returned', () => pm.expect(pm.response.json().data.status).to.eql('completed'));"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"defect\": \"baseline\",\n  \"attempt\": 1\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/simulator" }
+        },
+        {
+          "name": "500 - Simulated server error",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 500', () => pm.response.to.have.status(500));", "pm.test('Request ID is returned', () => pm.expect(pm.response.json().requestId).to.be.a('string'));"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"defect\": \"server-error\",\n  \"attempt\": 1\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/simulator" }
+        },
+        {
+          "name": "429 - Simulated rate limit",
+          "event": [{ "listen": "test", "script": { "exec": ["pm.test('Status is 429', () => pm.response.to.have.status(429));", "pm.test('Retry-After is 30 seconds', () => pm.expect(pm.response.headers.get('Retry-After')).to.eql('30'));"] } }],
+          "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"defect\": \"rate-limit\",\n  \"attempt\": 1\n}", "options": { "raw": { "language": "json" } } }, "url": "{{baseUrl}}/api/v1/simulator" }
+        }
+      ]
     }
   ]
 }

@@ -9,6 +9,10 @@ const features = [
   ["Response learning tools", "Copy or download response JSON, clear the panel, and read a plain-language explanation of every result."],
   ["Assertions", "Check status codes, JSON paths, and response time automatically."],
   ["Negative testing", "Practise beginner and advanced errors including 403, 405, 415, 429, and 503."],
+  ["API defect simulator", "Trigger safe timeouts, malformed JSON, missing fields, rate limits, server failures, and flaky responses."],
+  ["Data-driven testing", "Run one customer API against editable CSV or JSON rows and download a row-level execution report."],
+  ["Interview preparation", "Practise API fundamentals, automation design, troubleshooting scenarios, and project explanations."],
+  ["2-minute guided demo", "Show recruiters, educators, and new users the complete project through a captioned self-running tour."],
   ["Banking API Quest", "Build method, URL, and JSON manually across ten missions, then copy a completion summary with score and practised statuses."],
   ["Session dashboard", "See request history, token status, and generated IDs."],
   ["Swagger reference", "Explore documented endpoints and use Try it out."],
@@ -19,7 +23,7 @@ const statuses = [["200","OK"],["201","Created"],["204","No Content"],["400","Ba
 
 export default function GuidePage() {
   return <main className="guide-page">
-    <header className="guide-nav"><Link href="/"><span>B</span><strong>BetappaBharath <em>API TestLab</em></strong></Link><nav><a href="#start">Quick start</a><Link href="/challenges">Challenges</Link><a href="#postman">Postman</a><Link href="/swagger">Swagger</Link><a className="guide-primary" href="/#playground">Open practice lab</a></nav></header>
+    <header className="guide-nav"><Link href="/"><span>B</span><strong>BetappaBharath <em>API TestLab</em></strong></Link><nav><a href="#start">Quick start</a><Link href="/sdet-lab">SDET Lab</Link><Link href="/interview-prep">Interview</Link><Link href="/challenges">Challenges</Link><Link href="/swagger">Swagger</Link><a className="guide-primary" href="/#playground">Open practice lab</a></nav></header>
     <section className="guide-hero"><div><p className="guide-kicker">User guide · Banking API TestLab</p><h1>Everything you need to start testing APIs.</h1><p>Learn what the TestLab contains, how banking data connects, and how to test requests from the website or Postman.</p><div><a href="#start">Start with the basics</a><a href="/#playground">Go to practice</a></div></div><aside><b>Recommended first session</b><ol><li>Create a token</li><li>Load the sample bank</li><li>List all customers</li><li>Get one account</li><li>Try a negative test</li><li>Run assertions</li></ol></aside></section>
     <div className="guide-layout"><aside className="guide-toc"><b>On this page</b><a href="#overview">Overview</a><a href="#start">Quick start</a><a href="#flow">Banking flow</a><a href="#features">Features</a><a href="#methods">HTTP methods</a><a href="#assertions">Assertions</a><a href="#negative">Negative testing</a><a href="#postman">Postman</a><a href="#status">Status codes</a><a href="#troubleshooting">Troubleshooting</a></aside>
       <article className="guide-content">

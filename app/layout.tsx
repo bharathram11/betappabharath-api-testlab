@@ -5,6 +5,7 @@ import "./token-cleanup.css";
 import "./automation-code.css";
 import "./automation-setup.css";
 import "./quick-navigation.css";
+import "./advanced-tools.css";
 import VisitTracker from "./VisitTracker";
 
 export const metadata: Metadata = {
